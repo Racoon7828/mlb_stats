@@ -1,0 +1,37 @@
+Status code
+200 OK: 문제 없음
+201 Created: 새 리소스 생성 완료
+404 Not Found: 요청한 리소스가 없음
+403 Forbidden: 권한 부족
+500 Server Error: 서버 내부 문제
+
+Request
+Method: GET, POST, PUT, PATCH, DELETE
+Path: /api/post
+Headers: Authorization token 같은 메타데이터
+Body: 서버로 보내는 실제 데이터
+
+Response
+Status code: 요청 결과 요약
+Body: 요청한 데이터(JSON이 대부분)
+Headers: 서버 정보, 캐시 정책 등
+
+GET: 데이터 조회
+POST: 데이터 생성
+PUT: 전체 업데이트
+PATCH: 부분 업데이트
+DELETE: 삭제
+
+import requests
+
+response = requests.get("https://api.example.com/posts")
+print(response.status_code)
+print(response.headers)
+print(response.json())
+
+params = {
+    "page": 2,
+    "limit": 10
+}
+response = requests.get(URL, params=params)
+

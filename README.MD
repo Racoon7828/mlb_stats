@@ -4,7 +4,6 @@
 ```bash
 flask>=3.0
 requests>=2.31
-beautifulsoup4>=4.12
 ```
 
 ## 실행 방법

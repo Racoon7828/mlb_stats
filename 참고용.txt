@@ -35,3 +35,9 @@ params = {
 }
 response = requests.get(URL, params=params)
 
+# 선수 이미지 주소
+"https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/669257/headshot/67/current" 
+"https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${playerId}/headshot/67/current"
+
+position: absolute; bottom: 16px; left: 2.5%; width: 180px; padding: 10px;background-color: #ebebeb;border: 1px solid #cfcfcf; z-index: 2; transition: .3s bottom;
+

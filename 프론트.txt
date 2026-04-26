@@ -1,0 +1,27 @@
+https://developer.mozilla.org/ko/docs/Web/JavaScript
+
+자바 스크립트 변수 선언 var, let, const
+var : 최초 선언된 변수가 전역변수로써 기능을 수행
+let, const 는 { } 블록 내의 범위를 가진다.
+var, let 은 값을 변경할 수 있지만 const 는 불가능하다.
+
+addEventListener() 
+메서드는 지정한 유형의 이벤트를 대상이 수신할 때마다 호출할 함수를 설정
+addEventListener(type, listener, options);
+
+Document 
+인터페이스는 브라우저가 불러온 웹 페이지
+
+fetch('url', option)
+.then(response => response.json()) // 응답을 JSON으로 변환
+.then(data => conosole.log(data)) // 변환 데이터 출력
+.cath(error => console.error('Error:', error)); // 에러처리
+
+fetch(URL) : 저장된 URL로 네트워크 요청 보냄
+response.json() : 응답(JSON 문자열)을 JavaScript 객체로 변환
+.then(data => console.log(data)) : 반환 데이터 콘솔에 출력
+.catch(error => console.error('Error:', error)) : 요청이 실패했을 때 에러 처리
+
+
+
+

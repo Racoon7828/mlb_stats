@@ -1,5 +1,4 @@
 # MLBstat
-
 ## 요구사항
 ```bash
 flask>=3.0

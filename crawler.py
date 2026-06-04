@@ -82,3 +82,27 @@ def get_division_standings(league_id: int):
     response = requests.get(url, params=params)
     response.raise_for_status()
     return response.json().get("records", []) # 지구별 리스트 그대로 반환
+
+# 선수 통산 스탯 (커리어 전체 누적 기록)
+def get_player_career_stats(player_id: int, group: str = "hitting") -> dict:
+    url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
+    params = {"stats": "career", "group": group} # stats=career : 통산 누적 스탯
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    stats = response.json().get("stats", [])
+    if not stats or not stats[0].get("splits"): return {} # 데이터 없을 경우 에러 방지
+    return stats[0].get("splits")[0].get("stat", {})
+
+# API 예) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=career&group=hitting
+
+# 선수 경기 기록 (게임 로그 - 경기별 스탯)
+def get_player_game_log(player_id: int, season: int = 2026, group: str = "hitting") -> list:
+    url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
+    params = {"stats": "gameLog", "group": group, "season": season} # stats=gameLog : 경기별 스탯 목록
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    stats = response.json().get("stats", [])
+    if not stats or not stats[0].get("splits"): return [] # 데이터 없을 경우 에러 방지
+    return stats[0].get("splits", []) # 경기별 스탯 리스트 반환
+
+# API 예) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=gameLog&group=hitting&season=2026

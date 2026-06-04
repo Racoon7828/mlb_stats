@@ -6,314 +6,579 @@
     <title>MLB DATA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* 부드러운 화면 전환 효과 */
-        #main-content {
-            transition: all 0.3s ease;
-            background-color: #1a1d20; /* 메인 배경색 */
-            color: #e9ecef; /* 기본 텍스트색 */
+        :root {
+            --bg-base:    #121416;
+            --bg-main:    #1a1d20;
+            --bg-card:    #212529;
+            --bg-hover:   #343a40;
+            --border:     #343a40;
+            --accent:     #ffc107;
         }
 
-        /* 사이드바 스타일 강화 */
+        body { background-color: var(--bg-base); }
+
+        /* ── 레이아웃 ── */
+        #layout { display: flex; }
+
         #sidebar {
-            border-right: 1px solid #343a40;
+            width: 300px;
+            height: 100vh;
+            background-color: var(--bg-base);
+            color: white;
+            position: fixed;
+            overflow-y: auto;
+            padding: 20px;
+            border-right: 1px solid var(--border);
+            z-index: 999;
+            transition: transform 0.3s ease;
         }
+
+        #main-content {
+            margin-left: 300px;
+            flex-grow: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-main);
+            color: #e9ecef;
+        }
+
+        /* ── 헤더 ── */
+        #top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-base);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── 사이드바 팀 목록 ── */
+        .sidebar-section-label {
+            font-size: 0.8rem;
+            color: white;
+            border-bottom: 1px solid white;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .sidebar-team-item {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .sidebar-team-item:hover { background-color: var(--bg-hover); }
+        .sidebar-team-item img { margin-right: 10px; flex-shrink: 0; }
+        .sidebar-team-item span { font-size: 0.9rem; color: white; }
+
+        /* ── 선수 카드 그리드 ── */
+        .player-grid { display: flex; flex-wrap: wrap; margin: 0 -8px; }
 
         .player-col {
-            width: 16.666% !important; /* 100/6 */
-            padding: 8px !important;
+            width: 16.666%;
+            padding: 8px;
+            box-sizing: border-box;
         }
+        @media (max-width: 1200px) { .player-col { width: 33.333%; } }
+        @media (max-width: 576px)  { .player-col { width: 50%; } }
 
         .player-card {
-            background-color: #212529 !important; /* 카드 배경색 명확화 */
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+            height: 100%;
         }
-        /* 마우스 호버 시 살짝만 커지게 조정 */
         .player-card:hover {
-            transform: scale(1.03) !important;
-            border-color: #ffc107 !important;
+            transform: scale(1.03);
+            border-color: var(--accent);
             z-index: 10;
         }
-        /* 화면이 좁아질 때 3명씩 */
-        @media (max-width: 1200px) {
-            .player-col {
-                width: 33.333% !important;
-            }
+        .player-card-img {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            object-position: top center;
+            background: var(--bg-card);
+            display: block;
+        }
+        .player-card-body { padding: 8px; text-align: center; }
+        .player-card-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+        .player-card-sub {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.8);
+            margin: 0;
         }
 
-        /* 2명씩 */
-        @media (max-width: 576px) {
-            .player-col {
-                width: 50% !important;
-            }
+        /* ── 검색 드롭다운 ── */
+        #search-wrapper { position: relative; width: 350px; }
+        #search-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: calc(100% - 80px);
+            z-index: 9999;
+            background: var(--bg-card);
+            border: 1px solid #495057;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .s-item {
+            padding: 8px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+            color: #e9ecef;
+        }
+        .s-item:hover { background: var(--bg-hover); }
+        .s-item:last-child { border-bottom: none; }
+
+        /* ── 스탯 탭 ── */
+        .stat-tab-btn {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6c757d;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .stat-tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .stat-tab-pane { display: none; }
+        .stat-tab-pane.active { display: block; }
+
+        /* ── 모바일 ── */
+        #hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 12px;
+            line-height: 1;
+        }
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 998;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar             { transform: translateX(-300px); }
+            #sidebar.open        { transform: translateX(0); }
+            #sidebar-overlay.open{ display: block; }
+            #main-content        { margin-left: 0; }
+            #hamburger           { display: block; }
+            #search-wrapper      { width: 200px; }
+            #content-display     { padding: 20px !important; }
         }
     </style>
+</head>
+<body>
 
-    <body style="background-color: #121416;">
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-        <div style="display: flex;">
-            <div id="sidebar" style="width: 300px; height: 100vh; background-color: #121416; color: white; position: fixed; overflow-y: auto; padding: 20px;">
-                <h4 class="text-center mb-4" style="color: #ffc107;">⚾ MLB TEAMS</h4>
-                
-                <div style="margin-bottom: 30px;">
-                    <p style="font-size: 0.8rem; color: white; border-bottom: 1px solid white; padding-bottom: 5px; text-transform: uppercase;">American League</p>
-                    <div id="al-list"></div> </div>
-
-                <div>
-                    <p style="font-size: 0.8rem; color: white; border-bottom: 1px solid white; padding-bottom: 5px; text-transform: uppercase;">National League</p>
-                    <div id="nl-list"></div> </div>
+    <div id="layout">
+        <!-- 사이드바 -->
+        <div id="sidebar">
+            <h4 class="text-center mb-4" style="color: var(--accent);">⚾ MLB TEAMS</h4>
+            <div class="mb-4">
+                <p class="sidebar-section-label">American League</p>
+                <div id="al-list"></div>
             </div>
+            <div>
+                <p class="sidebar-section-label">National League</p>
+                <div id="nl-list"></div>
+            </div>
+        </div>
 
-            <div id="main-content" style="margin-left: 300px; flex-grow: 1; min-height: 100vh; display: flex; flex-direction: column;">
-    
-                <div id="top-header" class="d-flex justify-content-between align-items-center px-4 py-3" 
-                    style="position: sticky; top: 0; background-color: #121416; z-index: 1000; border-bottom: 1px solid #343a40;">
-                    
-                    <h2 class="fw-bold m-0 text-warning" style="letter-spacing: 1px; cursor: pointer;" onclick="location.reload()">
+        <!-- 메인 컨텐츠 -->
+        <div id="main-content">
+            <div id="top-header">
+                <div class="d-flex align-items-center">
+                    <button id="hamburger" onclick="toggleSidebar()">☰</button>
+                    <h2 class="fw-bold m-0 text-warning" style="letter-spacing:1px; cursor:pointer;" onclick="location.reload()">
                         MLB 선수 정보
                     </h2>
-
-                    <div class="input-group" style="width: 350px;">
-                        <input type="text" id="player-search" class="form-control bg-dark text-white border-secondary" 
-                            placeholder="Player Name..." onkeyup="if(window.event.keyCode==13){searchAndGo()}">
-                        <button onclick="searchAndGo()" class="btn btn-warning fw-bold">Search</button>
-                    </div>
                 </div>
 
-                <div id="content-display" style="padding: 40px; flex-grow: 1;">
-                    <div class="text-center mt-5">
-                        <div class="spinner-border text-warning"></div>
-                        <p class="text-white mt-2">데이터를 불러오고 있습니다...</p>
+                <div id="search-wrapper">
+                    <div class="input-group">
+                        <input type="text" id="player-search"
+                            class="form-control bg-dark text-white border-secondary"
+                            placeholder="Player Name..."
+                            autocomplete="off"
+                            oninput="onSearchInput(this.value)"
+                            onkeyup="if(event.keyCode===13){closeDropdown();searchAndGo();}">
+                        <button onclick="closeDropdown();searchAndGo()" class="btn btn-warning fw-bold">Search</button>
                     </div>
+                    <div id="search-dropdown"></div>
                 </div>
             </div>
 
-    <script>
-        // 뒤로가기 기능을 위해 현재 팀 ID 저장
-        let currentTeamId = null;
-
-        // 페이지 로드 시 팀 목록 및 초기 순위표 가져오기
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. 사이드바 팀 목록 로드
-            fetch('/api/teams')
-                .then(response => response.json())
-                .then(data => {
-                    const createItem = (team) => `
-                        <div onclick="showTeamDetail(${team.id}, '${team.name.replace(/'/g, "\\'")}')" 
-                            style="padding: 10px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; transition: 0.3s;"
-                            onmouseover="this.style.backgroundColor='#343a40'" 
-                            onmouseout="this.style.backgroundColor='transparent'">
-                            <img src="https://www.mlbstatic.com/team-logos/${team.id}.svg" width="20" height="20" style="margin-right: 10px;">
-                            <span class="text-white" style="font-size: 0.9rem;">${team.name}</span>
-                        </div>
-                    `;
-                    document.getElementById('al-list').innerHTML = data.american.map(createItem).join('');
-                    document.getElementById('nl-list').innerHTML = data.national.map(createItem).join('');
-                });
-
-            // 2. 초기 화면으로 리그 전체 순위표 출력
-            showStandings(); 
-        });
-
-        // 팀 클릭 시 로스터 출력
-        async function showTeamDetail(teamId) {
-            currentTeamId = teamId;
-            const display = document.getElementById('content-display');
-            
-            // 로딩 표시 (스피너)
-            display.innerHTML = `
+            <div id="content-display" style="padding: 40px; flex-grow: 1;">
                 <div class="text-center mt-5">
                     <div class="spinner-border text-warning"></div>
-                    <p class="text-white mt-2">로스터를 불러오고 있습니다...</p>
-                </div>`;
+                    <p class="text-white mt-2">데이터를 불러오고 있습니다...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
+<script>
+    let currentTeamId = null;
+    let searchTimer = null;
+    const tabLoaded = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/teams')
+            .then(r => r.json())
+            .then(data => {
+                const createItem = (team) => `
+                    <div class="sidebar-team-item" onclick="showTeamDetail(${team.id})">
+                        <img src="https://www.mlbstatic.com/team-logos/${team.id}.svg" width="20" height="20">
+                        <span>${team.name}</span>
+                    </div>`;
+                document.getElementById('al-list').innerHTML = data.american.map(createItem).join('');
+                document.getElementById('nl-list').innerHTML = data.national.map(createItem).join('');
+            });
+        showStandings();
+
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('search-wrapper').contains(e.target)) closeDropdown();
+        });
+    });
+
+    // ── 모바일 사이드바 ────────────────────────────────────────────
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
+    // ── 검색 드롭다운 ──────────────────────────────────────────────
+    function onSearchInput(value) {
+        clearTimeout(searchTimer);
+        if (value.length < 2) { closeDropdown(); return; }
+        searchTimer = setTimeout(async () => {
             try {
-                const response = await fetch(`/api/roster/${teamId}`);
-                const data = await response.json();
+                const res = await fetch(`/api/search?name=${encodeURIComponent(value)}`);
+                const results = await res.json();
+                if (!results.length) { closeDropdown(); return; }
+                const dd = document.getElementById('search-dropdown');
+                dd.innerHTML = results.slice(0, 8).map(p => `
+                    <div class="s-item" onclick="selectPlayer(${p.id})">
+                        ${p.fullName || ''}
+                        <span style="color:#6c757d; font-size:0.78rem; margin-left:6px;">
+                            ${p.primaryPosition?.abbreviation || ''}
+                        </span>
+                    </div>`).join('');
+                dd.style.display = 'block';
+            } catch(e) {}
+        }, 300);
+    }
 
-                // 선수 카드 생성 (그리드 시스템)
-                const cards = data.roster.map(item => {
-                    const p = item.person;
-                    const imgUrl = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${p.id}/headshot/67/current`;
-                    
-                    return `
-                        <div class="player-col"> <div class="card bg-dark border-secondary h-100 player-card" 
-                                onclick="showPlayerStats(${p.id})" 
-                                style="cursor: pointer; transition: transform 0.2s; border-radius: 8px; overflow: hidden;">
-                                
-                                <img src="${imgUrl}" class="card-img-top" alt="${p.fullName}" 
-                                    style="background: #212529; aspect-ratio: 1/1; object-fit: cover;">
-                                
-                                <div class="card-body text-center p-2">
-                                    <h6 class="fw-bold text-warning mb-1" style="font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        ${p.fullName}
-                                    </h6>
-                                    <p class="text-white mb-0" style="font-size: 0.75rem; opacity: 0.8;">
-                                        ${item.position.abbreviation} | No.${item.jerseyNumber || '-'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                // 로스터 제목 / 디아즈년 부상으로 빠진거 확인됨
-                display.innerHTML = `
-                    <div class="container-fluid">
-                        <div class="d-flex align-items-center mb-4">
-                            <button onclick="showStandings()" class="btn btn-outline-warning btn-sm me-3">
-                                ← 뒤로가기
-                            </button>
-                            <h3 class="text-white fw-bold m-0">팀 로스터</h3>
-                        </div>
-                        <div class="d-flex flex-wrap" style="margin: 0 -10px;"> 
-                            ${cards}
-                        </div>
-                    </div>
-                `;
+    function selectPlayer(id) {
+        document.getElementById('player-search').value = '';
+        closeDropdown();
+        showPlayerStats(id);
+    }
 
-            } catch (error) {
-                console.error("로스터 로드 실패:", error);
-                display.innerHTML = `<div class="alert alert-danger">로스터 정보를 불러오지 못했습니다.</div>`;
+    function closeDropdown() {
+        document.getElementById('search-dropdown').style.display = 'none';
+    }
+
+    async function searchAndGo() {
+        const name = document.getElementById('player-search').value.trim();
+        if (!name) return;
+        try {
+            const res = await fetch(`/api/search?name=${encodeURIComponent(name)}`);
+            const results = await res.json();
+            if (results && results.length > 0) {
+                showPlayerStats(results[0].id);
+                document.getElementById('player-search').value = '';
             }
-        }
+        } catch(e) { console.error(e); }
+    }
 
-        async function showPlayerStats(playerId) {
-            const display = document.getElementById('content-display');
-            
-            // 1. 로딩 표시
-            display.innerHTML = `
-                <div class="text-center" style="margin-top: 100px;">
-                    <div class="spinner-border text-primary"></div>
-                    <p class="mt-2">데이터를 불러오는 중...</p>
-                </div>`;
+    // ── 순위표 ────────────────────────────────────────────────────
+    async function showStandings() {
+        const display = document.getElementById('content-display');
+        const res = await fetch('/api/standings/divisions');
+        const data = await res.json();
+        const divNames = {
+            200: "AL East", 202: "AL Central", 201: "AL West",
+            203: "NL East", 205: "NL Central", 204: "NL West"
+        };
 
-            try {
-                // 2. 백엔드 API 호출
-                const response = await fetch(`/api/player/${playerId}`);
-                const data = await response.json();
-                
-                const player = data.info;
-                const stats = data.stats;
-
-                // 3. 화면 렌더링
-                display.innerHTML = `
-                    <div class="container py-2">
-                        <div class="d-flex align-items-center mb-4">
-                            <h2 class="fw-bold m-0 text-white" onclick="goBack()" style="cursor: pointer;">
-                                <span class="text-warning">←</span> Player Profile
-                            </h2>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-sm border-0 bg-dark text-white text-center p-3">
-                                    <img src="${data.imageUrl}" class="mx-auto mt-3" style="width: 180px; border-radius: 5%; background:#212529;">
-                                    <h3 class="mt-3 fw-bold text-warning">${player.fullName}</h3>
-                                    <p class="text-white opacity-75">${player.primaryPosition.name} | No.${player.primaryNumber}</p>
-                                    <hr class="border-secondary">
-                                    <div class="text-start ps-3">
-                                        <p><strong>Birth:</strong> ${player.birthDate}</p>
-                                        <p><strong>From:</strong> ${player.birthCity}</p>
-                                        <p><strong>H/W:</strong> ${player.height} / ${player.weight}lb</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-8">
-                                <div class="card shadow-sm border-0 bg-dark">
-                                    <div class="card-header bg-warning text-dark fw-bold">2026 Season Stats</div>
-                                    <div class="card-body p-0">
-                                        <table class="table table-dark table-hover mb-0">
-                                            <tbody>
-                                                ${stats.map(item => `
-                                                    <tr>
-                                                        <td class="text-white opacity-75 ps-4">${item.Info}</td>
-                                                        <td class="fw-bold text-warning text-end pe-4">${item.Record}</td>
-                                                    </tr>
-                                                `).join('')}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        const cards = data.map(div => `
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header border-secondary text-center text-warning fw-bold">
+                        ${divNames[div.division.id] || div.division.name}
                     </div>
-                `;
-            } catch (error) {
-                console.error("오류:", error);
-            }
-        }
+                    <table class="table table-dark table-hover m-0" style="font-size:0.8rem;">
+                        <thead>
+                            <tr class="text-center text-muted" style="font-size:0.7rem;">
+                                <th>순위</th><th class="text-start">팀</th><th>승</th><th>패</th><th>승률</th><th>GB</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${div.teamRecords.map(t => `
+                                <tr class="align-middle text-center">
+                                    <td class="fw-bold text-white-50">${t.divisionRank}</td>
+                                    <td class="text-start" onclick="showTeamDetail(${t.team.id})" style="cursor:pointer">
+                                        <img src="https://www.mlbstatic.com/team-logos/${t.team.id}.svg" width="18" class="me-1">
+                                        ${t.team.teamName}
+                                    </td>
+                                    <td>${t.wins}</td>
+                                    <td>${t.losses}</td>
+                                    <td class="text-warning">${t.winningPercentage}</td>
+                                    <td class="text-white-50">${t.gamesBack}</td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`).join('');
 
-        async function showStandings() {
-            const display = document.getElementById('content-display');
-            const res = await fetch('/api/standings/divisions');
+        display.innerHTML = `<div class="container-fluid py-3"><div class="row">${cards}</div></div>`;
+    }
+
+    // ── 팀 로스터 ─────────────────────────────────────────────────
+    async function showTeamDetail(teamId) {
+        currentTeamId = teamId;
+        closeSidebar();
+        const display = document.getElementById('content-display');
+        display.innerHTML = `
+            <div class="text-center mt-5">
+                <div class="spinner-border text-warning"></div>
+                <p class="text-white mt-2">로스터를 불러오고 있습니다...</p>
+            </div>`;
+        try {
+            const res = await fetch(`/api/roster/${teamId}`);
             const data = await res.json();
-            const divNames = {
-                200: "AL East", 202: "AL Central", 201: "AL West",
-                203: "NL East", 205: "NL Central", 204: "NL West"
-            };
 
-                // 200: "아메리칸 동부", 202: "아메리칸 중부", 201: "아메리칸 서부",
-                // 203: "내셔널 동부", 205: "내셔널 동부", 204: "NL West"
-
-            const cards = data.map(div => `
-                <div class="col-xl-4 col-md-6 mb-4">
-                    <div class="card bg-dark border-secondary">
-                        <div class="card-header border-secondary text-center text-warning fw-bold">
-                            ${divNames[div.division.id] || div.division.name}
+            const cards = data.roster.map(item => {
+                const p = item.person;
+                const imgUrl = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${p.id}/headshot/67/current`;
+                return `
+                    <div class="player-col" data-pos-type="${item.position.type || ''}">
+                        <div class="player-card" onclick="showPlayerStats(${p.id})">
+                            <img src="${imgUrl}" class="player-card-img" alt="${p.fullName}">
+                            <div class="player-card-body">
+                                <div class="player-card-name">${p.fullName}</div>
+                                <p class="player-card-sub">${item.position.abbreviation} | No.${item.jerseyNumber || '-'}</p>
+                            </div>
                         </div>
-                        <table class="table table-dark table-hover m-0" style="font-size: 0.8rem;">
-                            <thead>
-                                <tr class="text-center text-muted" style="font-size: 0.7rem;">
-                                    <th>순위</th><th class="text-start">팀</th><th>승</th><th>패</th><th>승률</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${div.teamRecords.map(t => `
-                                    <tr class="align-middle text-center">
-                                        <td class="fw-bold text-white-50">${t.divisionRank}</td>
-                                        <td class="text-start" onclick="showTeamDetail(${t.team.id}, '${t.team.name.replace(/'/g, "\\'")}')" style="cursor:pointer">
-                                            <img src="https://www.mlbstatic.com/team-logos/${t.team.id}.svg" width="18" class="me-1">
-                                            ${t.team.teamName}
-                                        </td>
-                                        <td>${t.wins}</td><td>${t.losses}</td>
-                                        <td class="text-warning">${t.winningPercentage}</td>
-                                    </tr>`).join('')}
-                            </tbody>
-                        </table>
+                    </div>`;
+            }).join('');
+
+            display.innerHTML = `
+                <div class="container-fluid">
+                    <div class="d-flex align-items-center mb-3">
+                        <button onclick="showStandings()" class="btn btn-outline-warning btn-sm me-3">← 뒤로가기</button>
+                        <h3 class="text-white fw-bold m-0">팀 로스터</h3>
                     </div>
-                </div>`).join('');
-
-            display.innerHTML = `<div class="container-fluid py-3"><div class="row">${cards}</div></div>`;
+                    <div class="mb-3 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-warning btn-sm pos-filter-btn" data-filter="all" onclick="filterRoster('all')">전체</button>
+                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Pitcher" onclick="filterRoster('Pitcher')">투수</button>
+                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Catcher" onclick="filterRoster('Catcher')">포수</button>
+                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Infielder" onclick="filterRoster('Infielder')">내야수</button>
+                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Outfielder" onclick="filterRoster('Outfielder')">외야수</button>
+                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Designated Hitter" onclick="filterRoster('Designated Hitter')">지명타자</button>
+                    </div>
+                    <div class="player-grid">${cards}</div>
+                </div>`;
+        } catch(e) {
+            display.innerHTML = `<div class="alert alert-danger">로스터 정보를 불러오지 못했습니다.</div>`;
         }
+    }
 
-        // 뒤로가기
-        function goBack() {
-            if (currentTeamId) {
-                showTeamDetail(currentTeamId); // 이전 팀 로스터 화면으로 이동
-            }
+    function filterRoster(type) {
+        document.querySelectorAll('.player-col').forEach(col => {
+            col.style.display = (type === 'all' || col.dataset.posType === type) ? '' : 'none';
+        });
+        document.querySelectorAll('.pos-filter-btn').forEach(btn => {
+            const active = btn.dataset.filter === type;
+            btn.className = `btn btn-sm pos-filter-btn ${active ? 'btn-warning' : 'btn-outline-secondary'}`;
+        });
+    }
+
+    // ── 선수 상세 ─────────────────────────────────────────────────
+    async function showPlayerStats(playerId) {
+        const display = document.getElementById('content-display');
+        display.innerHTML = `
+            <div class="text-center" style="margin-top:100px;">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2">데이터를 불러오는 중...</p>
+            </div>`;
+        try {
+            const res = await fetch(`/api/player/${playerId}`);
+            const data = await res.json();
+            const player = data.info;
+            const isPitcher = data.is_pitcher;
+
+            const seasonRows = data.stats.map(item => `
+                <tr>
+                    <td class="text-white opacity-75 ps-4">${item.Info}</td>
+                    <td class="fw-bold text-warning text-end pe-4">${item.Record}</td>
+                </tr>`).join('');
+
+            display.innerHTML = `
+                <div class="container py-2">
+                    <div class="d-flex align-items-center mb-4">
+                        <h2 class="fw-bold m-0 text-white" onclick="goBack()" style="cursor:pointer;">
+                            <span class="text-warning">←</span> Player Profile
+                        </h2>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm border-0 bg-dark text-white text-center p-3">
+                                <img src="${data.imageUrl}" class="mx-auto mt-3" style="width:180px; border-radius:5%; background:var(--bg-card);">
+                                <h3 class="mt-3 fw-bold text-warning">${player.fullName}</h3>
+                                <p class="text-white opacity-75">${player.primaryPosition.name} | No.${player.primaryNumber}</p>
+                                <hr class="border-secondary">
+                                <div class="text-start ps-3">
+                                    <p><strong>Birth:</strong> ${player.birthDate}</p>
+                                    <p><strong>From:</strong> ${player.birthCity}</p>
+                                    <p><strong>H/W:</strong> ${player.height} / ${player.weight}lb</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card shadow-sm border-0 bg-dark">
+                                <div class="card-header bg-dark border-secondary d-flex p-0" style="border-bottom:1px solid var(--border);">
+                                    <button class="stat-tab-btn active" id="tab-season"
+                                        onclick="switchStatTab('season', ${playerId}, ${isPitcher})">2026 시즌</button>
+                                    <button class="stat-tab-btn" id="tab-career"
+                                        onclick="switchStatTab('career', ${playerId}, ${isPitcher})">통산 스탯</button>
+                                    <button class="stat-tab-btn" id="tab-recent"
+                                        onclick="switchStatTab('recent', ${playerId}, ${isPitcher})">최근 10경기</button>
+                                </div>
+                                <div id="tab-pane-season" class="stat-tab-pane active">
+                                    <table class="table table-dark table-hover mb-0">
+                                        <tbody>${seasonRows}</tbody>
+                                    </table>
+                                </div>
+                                <div id="tab-pane-career" class="stat-tab-pane">
+                                    <div class="text-center text-muted p-4" style="font-size:0.85rem;">탭을 클릭하면 불러옵니다.</div>
+                                </div>
+                                <div id="tab-pane-recent" class="stat-tab-pane">
+                                    <div class="text-center text-muted p-4" style="font-size:0.85rem;">탭을 클릭하면 불러옵니다.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        } catch(e) {
+            console.error("오류:", e);
         }
+    }
 
-        // 검색
-        async function searchAndGo() {
-            const name = document.getElementById('player-search').value;
+    async function switchStatTab(tab, playerId, isPitcher) {
+        ['season', 'career', 'recent'].forEach(t => {
+            document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+            document.getElementById(`tab-pane-${t}`).classList.toggle('active', t === tab);
+        });
+
+        const key = `${playerId}-${tab}`;
+        if (tabLoaded[key]) return;
+        const pane = document.getElementById(`tab-pane-${tab}`);
+
+        if (tab === 'career') {
+            pane.innerHTML = `<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
             try {
-                // 1. 백엔드에 검색 요청
-                const response = await fetch(`/api/search?name=${encodeURIComponent(name)}`);
-                const results = await response.json();
+                const res = await fetch(`/api/player/${playerId}/career`);
+                const data = await res.json();
+                const rows = data.stats.map(item => `
+                    <tr>
+                        <td class="text-white opacity-75 ps-4">${item.Info}</td>
+                        <td class="fw-bold text-warning text-end pe-4">${item.Record}</td>
+                    </tr>`).join('');
+                pane.innerHTML = `<table class="table table-dark table-hover mb-0"><tbody>${rows}</tbody></table>`;
+                tabLoaded[key] = true;
+            } catch(e) {
+                pane.innerHTML = `<div class="text-danger p-3">불러오기 실패</div>`;
+            }
 
-                if (results && results.length > 0) {
-                    // 2. 선수 id 높은 놈 우선 검색
-                    const firstPlayerId = results[0].id;
-                    
-                    // 3. 기존에 만들어둔 상세 정보 함수 호출
-                    showPlayerStats(firstPlayerId);
-                    
-                    // 4. 검색창 비우기
-                    document.getElementById('player-search').value = "";
+        } else if (tab === 'recent') {
+            pane.innerHTML = `<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+            try {
+                const res = await fetch(`/api/player/${playerId}/gamelog`);
+                const data = await res.json();
+                if (!data.games || !data.games.length) {
+                    pane.innerHTML = `<div class="text-muted p-3 text-center" style="font-size:0.85rem;">데이터 없음</div>`;
+                    tabLoaded[key] = true;
+                    return;
                 }
-            } catch (error) {
-                console.error("검색 중 오류 발생:", error);
+                let thead, rows;
+                if (isPitcher) {
+                    thead = `<tr class="text-center text-muted" style="font-size:0.72rem;">
+                        <th>날짜</th><th>상대</th><th>이닝</th><th>ERA</th><th>탈삼진</th><th>볼넷</th><th>피안타</th>
+                    </tr>`;
+                    rows = data.games.map(g => `
+                        <tr class="text-center" style="font-size:0.82rem;">
+                            <td>${g.date}</td><td style="font-size:0.75rem;">${g.opponent}</td>
+                            <td class="text-warning">${g.inningsPitched}</td>
+                            <td>${g.era}</td><td>${g.strikeOuts}</td><td>${g.baseOnBalls}</td><td>${g.hits}</td>
+                        </tr>`).join('');
+                } else {
+                    thead = `<tr class="text-center text-muted" style="font-size:0.72rem;">
+                        <th>날짜</th><th>상대</th><th>타수</th><th>안타</th><th>홈런</th><th>타점</th><th>타율</th>
+                    </tr>`;
+                    rows = data.games.map(g => `
+                        <tr class="text-center" style="font-size:0.82rem;">
+                            <td>${g.date}</td><td style="font-size:0.75rem;">${g.opponent}</td>
+                            <td>${g.atBats}</td><td class="text-warning">${g.hits}</td>
+                            <td>${g.homeRuns}</td><td>${g.rbi}</td><td>${g.avg}</td>
+                        </tr>`).join('');
+                }
+                pane.innerHTML = `
+                    <div style="overflow-x:auto;">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>${thead}</thead><tbody>${rows}</tbody>
+                        </table>
+                    </div>`;
+                tabLoaded[key] = true;
+            } catch(e) {
+                pane.innerHTML = `<div class="text-danger p-3">불러오기 실패</div>`;
             }
         }
-    </script>
+    }
+
+    function goBack() {
+        if (currentTeamId) showTeamDetail(currentTeamId);
+    }
+</script>
 </body>
 </html>

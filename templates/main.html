@@ -3,201 +3,906 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB DATA</title>
+    <title>MLB STATS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-base:    #121416;
-            --bg-main:    #1a1d20;
-            --bg-card:    #212529;
-            --bg-hover:   #343a40;
-            --border:     #343a40;
-            --accent:     #ffc107;
+            --bg-base:    #0d1117;
+            --bg-surface: #161b22;
+            --bg-card:    #21262d;
+            --bg-hover:   #2d333b;
+            --border:     #30363d;
+            --border-lt:  #444c56;
+            --accent:     #f5a623;
+            --accent-dim: rgba(245,166,35,0.12);
+            --text-1:     #e6edf3;
+            --text-2:     #8b949e;
+            --text-3:     #6e7681;
+            --blue:       #388bfd;
+            --red:        #f85149;
+            --green:      #3fb950;
+        }
+        :root[data-theme="light"] {
+            --bg-base:    #f6f8fa;
+            --bg-surface: #ffffff;
+            --bg-card:    #f0f2f5;
+            --bg-hover:   #e8ebef;
+            --border:     #d0d7de;
+            --border-lt:  #afb8c1;
+            --accent:     #c8861a;
+            --accent-dim: rgba(200,134,26,0.1);
+            --text-1:     #1f2328;
+            --text-2:     #57606a;
+            --text-3:     #8c959f;
+            --blue:       #0969da;
+            --red:        #cf222e;
+            --green:      #1a7f37;
         }
 
-        body { background-color: var(--bg-base); }
+        *, *::before, *::after { box-sizing: border-box; }
 
-        /* ── 레이아웃 ── */
-        #layout { display: flex; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-1);
+            margin: 0;
+        }
 
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-lt); border-radius: 3px; }
+
+        /* ── Layout ────────────────────────────────── */
+        #layout { display: flex; min-height: 100vh; }
+
+        /* ── Sidebar ───────────────────────────────── */
         #sidebar {
-            width: 300px;
+            width: 256px;
             height: 100vh;
-            background-color: var(--bg-base);
-            color: white;
+            background: var(--bg-surface);
             position: fixed;
-            overflow-y: auto;
-            padding: 20px;
-            border-right: 1px solid var(--border);
-            z-index: 999;
-            transition: transform 0.3s ease;
-        }
-
-        #main-content {
-            margin-left: 300px;
-            flex-grow: 1;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg-main);
-            color: #e9ecef;
+            border-right: 1px solid var(--border);
+            z-index: 999;
+            transition: transform 0.25s ease;
+            overflow: hidden;
         }
 
-        /* ── 헤더 ── */
+        .sb-head {
+            padding: 16px 14px 10px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .sb-logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent);
+            cursor: pointer;
+        }
+        .sb-search-wrap {
+            margin-top: 10px;
+            position: relative;
+        }
+        .sb-search-wrap input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px 6px 30px;
+            color: var(--text-1);
+            font-size: 0.8rem;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .sb-search-wrap input:focus { border-color: var(--accent); }
+        .sb-search-wrap input::placeholder { color: var(--text-3); }
+        .sb-search-ico {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--text-3);
+            pointer-events: none;
+        }
+
+        /* ── Sidebar Nav ────────────────────────────── */
+        .sb-nav {
+            display: flex;
+            gap: 5px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .sb-nav-btn {
+            flex: 1;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-2);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 5px 3px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .sb-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .sb-nav-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+        .sb-body { overflow-y: auto; flex-grow: 1; padding: 6px 0 0; }
+
+        .sb-league {
+            padding: 12px 14px 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .sb-team {
+            padding: 7px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 2px solid transparent;
+            transition: background 0.15s;
+        }
+        .sb-team:hover { background: var(--bg-hover); }
+        .sb-team.active {
+            background: var(--accent-dim);
+            border-left-color: var(--accent);
+        }
+        .sb-team span {
+            font-size: 0.83rem;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── Favorites ─────────────────────────────── */
+        .fav-section {
+            border-top: 1px solid var(--border);
+            padding: 10px 14px 14px;
+            flex-shrink: 0;
+        }
+        .fav-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 6px;
+        }
+        .fav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-1);
+            transition: color 0.12s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .fav-item:hover { color: var(--accent); }
+        .fav-empty { font-size: 0.75rem; color: var(--text-3); padding: 4px 0; }
+
+        /* ── Main ──────────────────────────────────── */
+        #main-content {
+            margin-left: 256px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── Header ────────────────────────────────── */
         #top-header {
+            height: 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 24px;
+            padding: 0 24px;
             position: sticky;
             top: 0;
-            background-color: var(--bg-base);
-            z-index: 1000;
+            background: rgba(13,17,23,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
+            z-index: 1000;
+        }
+        :root[data-theme="light"] #top-header {
+            background: rgba(246,248,250,0.92);
         }
 
-        /* ── 사이드바 팀 목록 ── */
-        .sidebar-section-label {
-            font-size: 0.8rem;
-            color: white;
-            border-bottom: 1px solid white;
-            padding-bottom: 5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .sidebar-team-item {
-            padding: 10px;
+        .hd-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--accent);
             cursor: pointer;
+        }
+
+        #hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-2);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 10px;
+            padding: 2px 6px;
             border-radius: 4px;
+            transition: background 0.15s;
+        }
+        #hamburger:hover { background: var(--bg-hover); }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-2);
+            padding: 5px 9px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1;
+            transition: border-color 0.15s, color 0.15s;
+            margin-left: 8px;
+        }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Score Banner ──────────────────────────── */
+        #score-banner {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            min-height: 52px;
+            align-items: center;
+        }
+        #score-banner::-webkit-scrollbar { display: none; }
+
+        .score-game {
             display: flex;
             align-items: center;
-            transition: background-color 0.2s;
-        }
-        .sidebar-team-item:hover { background-color: var(--bg-hover); }
-        .sidebar-team-item img { margin-right: 10px; flex-shrink: 0; }
-        .sidebar-team-item span { font-size: 0.9rem; color: white; }
-
-        /* ── 선수 카드 그리드 ── */
-        .player-grid { display: flex; flex-wrap: wrap; margin: 0 -8px; }
-
-        .player-col {
-            width: 16.666%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        @media (max-width: 1200px) { .player-col { width: 33.333%; } }
-        @media (max-width: 576px)  { .player-col { width: 50%; } }
-
-        .player-card {
-            background-color: var(--bg-card);
+            gap: 8px;
+            background: var(--bg-card);
             border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.78rem;
+        }
+        .score-team { display: flex; align-items: center; gap: 5px; }
+        .score-num {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            min-width: 16px;
+            text-align: center;
+            color: var(--text-2);
+        }
+        .score-num.win { color: var(--accent); }
+        .score-sep { color: var(--border-lt); }
+        .score-status {
+            font-size: 0.63rem;
+            color: var(--text-3);
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: var(--bg-hover);
+            white-space: nowrap;
+        }
+        .score-status.live { color: var(--green); background: rgba(63,185,80,0.12); }
+
+        /* ── Search ────────────────────────────────── */
+        #search-wrapper { position: relative; width: 310px; }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 10px;
+            gap: 8px;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus-within { border-color: var(--accent); }
+
+        .search-ico { color: var(--text-3); font-size: 0.8rem; }
+
+        #player-search {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-1);
+            font-size: 0.85rem;
+            padding: 8px 0;
+            flex-grow: 1;
+            font-family: 'Inter', sans-serif;
+        }
+        #player-search::placeholder { color: var(--text-3); }
+
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 4px 11px;
             cursor: pointer;
+            flex-shrink: 0;
+            transition: opacity 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+        .search-btn:hover { opacity: 0.82; }
+
+        #search-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0; right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-lt);
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.2s, border-color 0.2s;
-            height: 100%;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+            z-index: 9999;
+            max-height: 272px;
+            overflow-y: auto;
+        }
+        .s-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-1);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
+        .s-item:hover { background: var(--bg-hover); }
+        .s-item:last-child { border-bottom: none; }
+        .s-pos {
+            font-size: 0.7rem;
+            background: var(--bg-hover);
+            color: var(--text-2);
+            border-radius: 4px;
+            padding: 1px 6px;
+        }
+
+        /* ── Content wrapper ───────────────────────── */
+        #content-display { padding: 24px 28px; flex-grow: 1; }
+
+        /* ── Skeleton ──────────────────────────────── */
+        .skel {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.3s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── Page title ────────────────────────────── */
+        .page-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 18px;
+            color: var(--text-1);
+        }
+
+        /* ── Standings ─────────────────────────────── */
+        .standings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 14px;
+        }
+
+        .div-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .div-head {
+            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+        .league-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .al-badge { background: rgba(56,139,253,0.18); color: var(--blue); }
+        .nl-badge { background: rgba(248,81,73,0.18); color: var(--red); }
+
+        .s-table { width: 100%; border-collapse: collapse; }
+        .s-table th {
+            padding: 6px 10px;
+            font-size: 0.63rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .s-table th:nth-child(2) { text-align: left; }
+        .s-table td {
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-1);
+            border-bottom: 1px solid var(--border);
+        }
+        .s-table td:nth-child(2) { text-align: left; }
+        .s-table tr:last-child td { border-bottom: none; }
+        .s-table tr:hover td { background: var(--bg-hover); }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .team-cell:hover span { color: var(--accent); }
+        .rank-cell { color: var(--text-3); font-weight: 600; font-size: 0.75rem; }
+        .wpct-val { color: var(--accent); font-weight: 600; }
+        .wpct-bar-bg {
+            display: inline-block;
+            width: 44px;
+            height: 3px;
+            background: var(--bg-hover);
+            border-radius: 2px;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        .wpct-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+        .gb-cell { color: var(--text-3); }
+
+        /* ── Roster ────────────────────────────────── */
+        .roster-top {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-2);
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+        .fpill {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-2);
+            font-size: 0.78rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .fpill:hover { border-color: var(--accent); color: var(--accent); }
+        .fpill.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+            gap: 12px;
+        }
+
+        .player-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
         }
         .player-card:hover {
-            transform: scale(1.03);
+            transform: translateY(-4px);
             border-color: var(--accent);
-            z-index: 10;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
         }
         .player-card-img {
             width: 100%;
-            aspect-ratio: 3 / 4;
+            aspect-ratio: 3/4;
             object-fit: cover;
             object-position: top center;
             background: var(--bg-card);
             display: block;
         }
-        .player-card-body { padding: 8px; text-align: center; }
-        .player-card-name {
-            font-size: 0.9rem;
+        .player-pos-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-size: 0.65rem;
             font-weight: 700;
-            color: var(--accent);
+            letter-spacing: 0.5px;
+            color: var(--text-2);
+        }
+        /* 포지션별 배지 색상 */
+        .badge-pitcher    { color: #60a5fa; }
+        .badge-catcher    { color: var(--green); }
+        .badge-infielder  { color: var(--accent); }
+        .badge-outfielder { color: #fb7185; }
+        .badge-twoway     { color: #a78bfa; }
+        .badge-dh         { color: var(--text-2); }
+
+        /* 즐겨찾기 별 버튼 */
+        .star-btn {
+            position: absolute;
+            bottom: 40px;
+            right: 8px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-3);
+            transition: color 0.15s, background 0.15s;
+            z-index: 5;
+            line-height: 1;
+        }
+        .star-btn:hover { color: var(--accent); background: rgba(0,0,0,0.7); }
+        .star-btn.starred { color: var(--accent); }
+
+        .player-card-body { padding: 10px 10px 12px; }
+        .player-card-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+        .player-card-sub { font-size: 0.7rem; color: var(--text-3); margin: 0; }
+
+        /* ── Player Profile ────────────────────────── */
+        .profile-hero {
+            background: linear-gradient(135deg, var(--bg-surface), var(--bg-card));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+        .profile-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 10px;
+            object-fit: cover;
+            object-position: top center;
+            background: var(--bg-card);
+            border: 2px solid var(--border-lt);
+            flex-shrink: 0;
+        }
+        .profile-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
             margin-bottom: 4px;
         }
-        .player-card-sub {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.8);
-            margin: 0;
+        .profile-pos {
+            font-size: 0.82rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 14px;
         }
+        .profile-meta { display: flex; flex-wrap: wrap; gap: 20px; }
+        .pmeta-label { display: block; font-size: 0.68rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+        .pmeta-val { font-size: 0.85rem; font-weight: 500; color: var(--text-1); }
 
-        /* ── 검색 드롭다운 ── */
-        #search-wrapper { position: relative; width: 350px; }
-        #search-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: calc(100% - 80px);
-            z-index: 9999;
-            background: var(--bg-card);
-            border: 1px solid #495057;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            max-height: 280px;
-            overflow-y: auto;
-        }
-        .s-item {
-            padding: 8px 14px;
+        /* 선수 프로필 즐겨찾기 버튼 */
+        .profile-fav-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-3);
+            font-size: 0.82rem;
+            padding: 5px 12px;
             cursor: pointer;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.88rem;
-            color: #e9ecef;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            margin-left: auto;
         }
-        .s-item:hover { background: var(--bg-hover); }
-        .s-item:last-child { border-bottom: none; }
+        .profile-fav-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .profile-fav-btn.starred { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
 
-        /* ── 스탯 탭 ── */
+        /* Stat tabs */
+        .stat-tabs {
+            display: flex;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+        }
         .stat-tab-btn {
             background: none;
             border: none;
             border-bottom: 2px solid transparent;
-            color: #6c757d;
-            padding: 10px 18px;
+            color: var(--text-2);
+            padding: 12px 20px;
             cursor: pointer;
-            font-size: 0.88rem;
+            font-size: 0.83rem;
             font-weight: 500;
-            transition: color 0.2s;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.15s;
+            margin-bottom: -1px;
         }
-        .stat-tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
+        .stat-tab-btn:hover { color: var(--text-1); }
+        .stat-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
         .stat-tab-pane { display: none; }
         .stat-tab-pane.active { display: block; }
 
-        /* ── 모바일 ── */
-        #hamburger {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--accent);
-            font-size: 1.5rem;
-            cursor: pointer;
-            margin-right: 12px;
-            line-height: 1;
+        .stats-wrap {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
         }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-row:hover { background: var(--bg-hover); }
+        .stat-label { font-size: 0.83rem; color: var(--text-2); }
+        .stat-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        /* Chart */
+        .chart-container { padding: 16px; position: relative; height: 260px; }
+
+        /* ── Two-Way Player 2열 레이아웃 ──────────── */
+        .twoway-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+        .twoway-col { background: var(--bg-surface); }
+        .twoway-col-head {
+            padding: 8px 16px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .bat-head { color: var(--accent); }
+        .pit-head { color: var(--blue); }
+        @media (max-width: 540px) { .twoway-grid { grid-template-columns: 1fr; } }
+
+        /* ── Leaderboard ───────────────────────────── */
+        .leader-table { width: 100%; border-collapse: collapse; }
+        .leader-table th {
+            padding: 8px 12px;
+            font-size: 0.63rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-3);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .leader-table th:last-child { text-align: right; }
+        .leader-table td {
+            padding: 10px 12px;
+            font-size: 0.82rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-1);
+        }
+        .leader-table tr:last-child td { border-bottom: none; }
+        .leader-table tbody tr:hover td { background: var(--bg-hover); cursor: pointer; }
+        .leader-rank {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-3);
+            width: 36px;
+        }
+        .leader-rank.gold   { color: #ffd700; }
+        .leader-rank.silver { color: #c0c0c0; }
+        .leader-rank.bronze { color: #cd7f32; }
+        .leader-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: right;
+        }
+
+        /* ── Team Compare ──────────────────────────── */
+        .compare-select-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .compare-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-1);
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            flex: 1;
+            min-width: 160px;
+        }
+        .compare-select:focus { border-color: var(--accent); }
+        .compare-select option { background: var(--bg-card); }
+        .compare-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.15s;
+        }
+        .compare-btn:hover { opacity: 0.85; }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .compare-header {
+            background: var(--bg-surface);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare-header-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .compare-section-label {
+            background: var(--bg-card);
+            padding: 8px 16px;
+            font-size: 0.63rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            border-bottom: 1px solid var(--border);
+            grid-column: 1 / -1;
+        }
+        .compare-cell {
+            background: var(--bg-surface);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        .compare-cell:nth-child(even) { border-right: none; justify-content: space-between; flex-direction: row-reverse; }
+        .compare-stat-label { font-size: 0.78rem; color: var(--text-2); }
+        .compare-stat-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+        .compare-stat-val.better { color: var(--green); }
+        .compare-stat-val.worse  { color: var(--text-3); }
+
+        /* ── Overlay ───────────────────────────────── */
         #sidebar-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0,0,0,0.6);
             z-index: 998;
         }
 
+        /* ── Mobile ────────────────────────────────── */
         @media (max-width: 768px) {
-            #sidebar             { transform: translateX(-300px); }
-            #sidebar.open        { transform: translateX(0); }
-            #sidebar-overlay.open{ display: block; }
-            #main-content        { margin-left: 0; }
-            #hamburger           { display: block; }
-            #search-wrapper      { width: 200px; }
-            #content-display     { padding: 20px !important; }
+            #sidebar              { transform: translateX(-256px); }
+            #sidebar.open         { transform: translateX(0); }
+            #sidebar-overlay.open { display: block; }
+            #main-content         { margin-left: 0; }
+            #hamburger            { display: block; }
+            #search-wrapper       { width: 160px; }
+            #content-display      { padding: 16px; }
+            #score-banner         { padding: 0 16px; }
+            .profile-hero         { flex-direction: column; }
+            .standings-grid       { grid-template-columns: 1fr; }
+            .compare-grid         { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -206,77 +911,193 @@
     <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
     <div id="layout">
-        <!-- 사이드바 -->
+
+        <!-- ── Sidebar ── -->
         <div id="sidebar">
-            <h4 class="text-center mb-4" style="color: var(--accent);">⚾ MLB TEAMS</h4>
-            <div class="mb-4">
-                <p class="sidebar-section-label">American League</p>
-                <div id="al-list"></div>
+            <div class="sb-head">
+                <div class="sb-logo" onclick="showStandings()">⚾ MLB STATS</div>
+                <div class="sb-search-wrap">
+                    <span class="sb-search-ico">🔍</span>
+                    <input type="text" placeholder="팀 검색..." oninput="filterTeams(this.value)">
+                </div>
             </div>
-            <div>
-                <p class="sidebar-section-label">National League</p>
+
+            <!-- 사이드바 네비게이션 -->
+            <div class="sb-nav">
+                <button class="sb-nav-btn active" data-nav="standings" onclick="showStandings()">순위표</button>
+                <button class="sb-nav-btn" data-nav="leaderboard" onclick="showLeaderboard()">리더보드</button>
+                <button class="sb-nav-btn" data-nav="compare" onclick="showCompare()">팀 비교</button>
+            </div>
+
+            <div class="sb-body">
+                <div class="sb-league">American League</div>
+                <div id="al-list"></div>
+                <div class="sb-league" style="margin-top:8px;">National League</div>
                 <div id="nl-list"></div>
+            </div>
+
+            <!-- 즐겨찾기 -->
+            <div class="fav-section">
+                <div class="fav-label">★ 즐겨찾기</div>
+                <div id="fav-list"><div class="fav-empty">즐겨찾기 없음</div></div>
             </div>
         </div>
 
-        <!-- 메인 컨텐츠 -->
+        <!-- ── Main ── -->
         <div id="main-content">
+
             <div id="top-header">
-                <div class="d-flex align-items-center">
+                <div style="display:flex; align-items:center;">
                     <button id="hamburger" onclick="toggleSidebar()">☰</button>
-                    <h2 class="fw-bold m-0 text-warning" style="letter-spacing:1px; cursor:pointer;" onclick="location.reload()">
-                        MLB 선수 정보
-                    </h2>
+                    <span class="hd-title" onclick="showStandings()">MLB STATS</span>
                 </div>
-
-                <div id="search-wrapper">
-                    <div class="input-group">
-                        <input type="text" id="player-search"
-                            class="form-control bg-dark text-white border-secondary"
-                            placeholder="Player Name..."
-                            autocomplete="off"
-                            oninput="onSearchInput(this.value)"
-                            onkeyup="if(event.keyCode===13){closeDropdown();searchAndGo();}">
-                        <button onclick="closeDropdown();searchAndGo()" class="btn btn-warning fw-bold">Search</button>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <div id="search-wrapper">
+                        <div class="search-box">
+                            <span class="search-ico">🔍</span>
+                            <input type="text" id="player-search"
+                                placeholder="선수 검색..."
+                                autocomplete="off"
+                                oninput="onSearchInput(this.value)"
+                                onkeyup="if(event.keyCode===13){closeDropdown();searchAndGo();}">
+                            <button class="search-btn" onclick="closeDropdown();searchAndGo()">Search</button>
+                        </div>
+                        <div id="search-dropdown"></div>
                     </div>
-                    <div id="search-dropdown"></div>
+                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="테마 전환">☀️</button>
                 </div>
             </div>
 
-            <div id="content-display" style="padding: 40px; flex-grow: 1;">
-                <div class="text-center mt-5">
-                    <div class="spinner-border text-warning"></div>
-                    <p class="text-white mt-2">데이터를 불러오고 있습니다...</p>
+            <!-- 오늘의 경기 스코어 배너 -->
+            <div id="score-banner">
+                <span style="color:var(--text-3); font-size:0.75rem;">경기 정보 로딩 중...</span>
+            </div>
+
+            <div id="content-display">
+                <div class="standings-grid">
+                    <div class="skel" style="height:220px;"></div>
+                    <div class="skel" style="height:220px;"></div>
+                    <div class="skel" style="height:220px;"></div>
+                    <div class="skel" style="height:220px;"></div>
+                    <div class="skel" style="height:220px;"></div>
+                    <div class="skel" style="height:220px;"></div>
                 </div>
             </div>
+
         </div>
     </div>
 
 <script>
-    let currentTeamId = null;
-    let searchTimer = null;
-    const tabLoaded = {};
+    let currentTeamId    = null;
+    let searchTimer      = null;
+    let recentChartInst  = null;
+    const tabLoaded      = {};
+    let allTeams         = {};
+    let leaderCache      = {};
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        loadScoreBanner();
+        renderFavorites();
+
         fetch('/api/teams')
             .then(r => r.json())
             .then(data => {
-                const createItem = (team) => `
-                    <div class="sidebar-team-item" onclick="showTeamDetail(${team.id})">
-                        <img src="https://www.mlbstatic.com/team-logos/${team.id}.svg" width="20" height="20">
-                        <span>${team.name}</span>
+                [...data.american, ...data.national].forEach(t => allTeams[t.id] = t);
+
+                const mkItem = t => `
+                    <div class="sb-team" id="sb-${t.id}" onclick="showTeamDetail(${t.id})">
+                        <img src="https://www.mlbstatic.com/team-logos/${t.id}.svg" width="22" height="22">
+                        <span>${t.name}</span>
                     </div>`;
-                document.getElementById('al-list').innerHTML = data.american.map(createItem).join('');
-                document.getElementById('nl-list').innerHTML = data.national.map(createItem).join('');
+                document.getElementById('al-list').innerHTML = data.american.map(mkItem).join('');
+                document.getElementById('nl-list').innerHTML = data.national.map(mkItem).join('');
             });
         showStandings();
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', e => {
             if (!document.getElementById('search-wrapper').contains(e.target)) closeDropdown();
         });
     });
 
-    // ── 모바일 사이드바 ────────────────────────────────────────────
+    // ── Theme ─────────────────────────────────────────
+    function initTheme() {
+        const saved = localStorage.getItem('mlb_theme') || 'dark';
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : '';
+        document.getElementById('theme-toggle').textContent = saved === 'light' ? '🌙' : '☀️';
+    }
+
+    function toggleTheme() {
+        const isLight = document.documentElement.dataset.theme === 'light';
+        const next = isLight ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next === 'light' ? 'light' : '';
+        document.getElementById('theme-toggle').textContent = next === 'light' ? '🌙' : '☀️';
+        localStorage.setItem('mlb_theme', next);
+    }
+
+    // ── Score Banner ───────────────────────────────────
+    async function loadScoreBanner() {
+        const banner = document.getElementById('score-banner');
+        try {
+            const today = new Date().toISOString().slice(0, 10);
+            const r = await fetch(`/api/schedule?date=${today}`);
+            const games = await r.json();
+
+            if (!games.length) {
+                banner.innerHTML = `<span style="color:var(--text-3); font-size:0.75rem;">오늘 예정된 경기 없음</span>`;
+                return;
+            }
+
+            banner.innerHTML = games.map(g => {
+                const isLive  = g.status === 'Live';
+                const isFinal = g.status === 'Final';
+                const hasScore = isLive || isFinal;
+                const awayWin = isFinal && g.away.score > g.home.score;
+                const homeWin = isFinal && g.home.score > g.away.score;
+
+                let statusLabel = '예정';
+                if (isFinal) statusLabel = '종료';
+                else if (isLive) statusLabel = `${g.inning}회 ${g.inningHalf === 'Top' ? '▲' : '▼'}`;
+
+                return `<div class="score-game">
+                    <div class="score-team">
+                        <img src="https://www.mlbstatic.com/team-logos/${g.away.id}.svg" width="18" height="18">
+                        <span style="color:var(--text-2); font-size:0.75rem;">${g.away.name}</span>
+                        ${hasScore ? `<span class="score-num ${awayWin ? 'win' : ''}">${g.away.score}</span>` : ''}
+                    </div>
+                    <span class="score-sep">–</span>
+                    <div class="score-team">
+                        ${hasScore ? `<span class="score-num ${homeWin ? 'win' : ''}">${g.home.score}</span>` : ''}
+                        <span style="color:var(--text-2); font-size:0.75rem;">${g.home.name}</span>
+                        <img src="https://www.mlbstatic.com/team-logos/${g.home.id}.svg" width="18" height="18">
+                    </div>
+                    <span class="score-status ${isLive ? 'live' : ''}">${statusLabel}</span>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            banner.innerHTML = '';
+        }
+    }
+
+    // ── Sidebar helpers ────────────────────────────────
+    function filterTeams(q) {
+        q = q.toLowerCase();
+        document.querySelectorAll('.sb-team').forEach(el => {
+            el.style.display = el.querySelector('span').textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function setActiveTeam(id) {
+        document.querySelectorAll('.sb-team').forEach(el => el.classList.remove('active'));
+        if (id) document.getElementById(`sb-${id}`)?.classList.add('active');
+    }
+
+    function setActiveNav(which) {
+        document.querySelectorAll('.sb-nav-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.nav === which);
+        });
+    }
+
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -286,26 +1107,27 @@
         document.getElementById('sidebar-overlay').classList.remove('open');
     }
 
-    // ── 검색 드롭다운 ──────────────────────────────────────────────
-    function onSearchInput(value) {
+    // ── Search dropdown ───────────────────────────────
+    function onSearchInput(val) {
         clearTimeout(searchTimer);
-        if (value.length < 2) { closeDropdown(); return; }
+        if (val.length < 2) { closeDropdown(); return; }
         searchTimer = setTimeout(async () => {
             try {
-                const res = await fetch(`/api/search?name=${encodeURIComponent(value)}`);
-                const results = await res.json();
-                if (!results.length) { closeDropdown(); return; }
+                const r = await fetch(`/api/search?name=${encodeURIComponent(val)}`);
+                const list = await r.json();
+                if (!list.length) { closeDropdown(); return; }
                 const dd = document.getElementById('search-dropdown');
-                dd.innerHTML = results.slice(0, 8).map(p => `
+                dd.innerHTML = list.slice(0, 8).map(p => `
                     <div class="s-item" onclick="selectPlayer(${p.id})">
-                        ${p.fullName || ''}
-                        <span style="color:#6c757d; font-size:0.78rem; margin-left:6px;">
-                            ${p.primaryPosition?.abbreviation || ''}
+                        <span>
+                            ${p.koreanName || p.fullName || ''}
+                            <span style="color:var(--text-3); font-size:0.75rem; margin-left:5px;">${p.koreanName ? p.fullName : ''}</span>
                         </span>
+                        <span class="s-pos">${p.primaryPosition?.abbreviation || ''}</span>
                     </div>`).join('');
                 dd.style.display = 'block';
             } catch(e) {}
-        }, 300);
+        }, 280);
     }
 
     function selectPlayer(id) {
@@ -313,271 +1135,602 @@
         closeDropdown();
         showPlayerStats(id);
     }
-
     function closeDropdown() {
         document.getElementById('search-dropdown').style.display = 'none';
     }
-
     async function searchAndGo() {
         const name = document.getElementById('player-search').value.trim();
         if (!name) return;
         try {
-            const res = await fetch(`/api/search?name=${encodeURIComponent(name)}`);
-            const results = await res.json();
-            if (results && results.length > 0) {
-                showPlayerStats(results[0].id);
+            const r = await fetch(`/api/search?name=${encodeURIComponent(name)}`);
+            const list = await r.json();
+            if (list?.length) {
+                showPlayerStats(list[0].id);
                 document.getElementById('player-search').value = '';
             }
-        } catch(e) { console.error(e); }
+        } catch(e) {}
     }
 
-    // ── 순위표 ────────────────────────────────────────────────────
+    // ── Standings ─────────────────────────────────────
     async function showStandings() {
+        setActiveTeam(null);
+        setActiveNav('standings');
+        closeSidebar();
         const display = document.getElementById('content-display');
-        const res = await fetch('/api/standings/divisions');
+        display.innerHTML = `<div class="standings-grid">${[...Array(6)].map(() =>
+            `<div class="skel" style="height:240px;"></div>`).join('')}</div>`;
+
+        const res  = await fetch('/api/standings/divisions');
         const data = await res.json();
         const divNames = {
-            200: "AL East", 202: "AL Central", 201: "AL West",
-            203: "NL East", 205: "NL Central", 204: "NL West"
+            200:"AL East", 202:"AL Central", 201:"AL West",
+            203:"NL East", 205:"NL Central", 204:"NL West"
         };
+        const alIds = [200, 201, 202];
 
-        const cards = data.map(div => `
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-header border-secondary text-center text-warning fw-bold">
-                        ${divNames[div.division.id] || div.division.name}
-                    </div>
-                    <table class="table table-dark table-hover m-0" style="font-size:0.8rem;">
-                        <thead>
-                            <tr class="text-center text-muted" style="font-size:0.7rem;">
-                                <th>순위</th><th class="text-start">팀</th><th>승</th><th>패</th><th>승률</th><th>GB</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${div.teamRecords.map(t => `
-                                <tr class="align-middle text-center">
-                                    <td class="fw-bold text-white-50">${t.divisionRank}</td>
-                                    <td class="text-start" onclick="showTeamDetail(${t.team.id})" style="cursor:pointer">
-                                        <img src="https://www.mlbstatic.com/team-logos/${t.team.id}.svg" width="18" class="me-1">
-                                        ${t.team.teamName}
-                                    </td>
-                                    <td>${t.wins}</td>
-                                    <td>${t.losses}</td>
-                                    <td class="text-warning">${t.winningPercentage}</td>
-                                    <td class="text-white-50">${t.gamesBack}</td>
-                                </tr>`).join('')}
-                        </tbody>
+        const cards = data.map(div => {
+            const isAL  = alIds.includes(div.division.id);
+            const badge = `<span class="league-badge ${isAL ? 'al-badge' : 'nl-badge'}">${isAL ? 'AL' : 'NL'}</span>`;
+            const rows  = div.teamRecords.map(t => {
+                const pct = parseFloat(t.winningPercentage || 0);
+                return `
+                    <tr>
+                        <td class="rank-cell">${t.divisionRank}</td>
+                        <td>
+                            <div class="team-cell" onclick="showTeamDetail(${t.team.id})">
+                                <img src="https://www.mlbstatic.com/team-logos/${t.team.id}.svg" width="20" height="20">
+                                <span>${t.team.teamName}</span>
+                            </div>
+                        </td>
+                        <td>${t.wins}</td>
+                        <td>${t.losses}</td>
+                        <td>
+                            <span class="wpct-val">${t.winningPercentage}</span>
+                            <span class="wpct-bar-bg"><span class="wpct-bar-fill" style="width:${Math.round(pct*100)}%;"></span></span>
+                        </td>
+                        <td class="gb-cell">${t.gamesBack}</td>
+                    </tr>`;
+            }).join('');
+
+            return `
+                <div class="div-card">
+                    <div class="div-head">${badge}${divNames[div.division.id] || div.division.name}</div>
+                    <table class="s-table">
+                        <thead><tr><th>#</th><th>팀</th><th>W</th><th>L</th><th>PCT</th><th>GB</th></tr></thead>
+                        <tbody>${rows}</tbody>
                     </table>
-                </div>
-            </div>`).join('');
+                </div>`;
+        }).join('');
 
-        display.innerHTML = `<div class="container-fluid py-3"><div class="row">${cards}</div></div>`;
+        display.innerHTML = `
+            <p class="page-title">2026 Division Standings</p>
+            <div class="standings-grid">${cards}</div>`;
     }
 
-    // ── 팀 로스터 ─────────────────────────────────────────────────
-    async function showTeamDetail(teamId) {
-        currentTeamId = teamId;
+    // ── Leaderboard ────────────────────────────────────
+    async function showLeaderboard() {
+        setActiveTeam(null);
+        setActiveNav('leaderboard');
         closeSidebar();
         const display = document.getElementById('content-display');
         display.innerHTML = `
-            <div class="text-center mt-5">
-                <div class="spinner-border text-warning"></div>
-                <p class="text-white mt-2">로스터를 불러오고 있습니다...</p>
+            <p class="page-title">스탯 리더보드</p>
+            <div class="stat-tabs" style="margin-bottom:0;">
+                <button class="stat-tab-btn active" id="ltab-hr"  onclick="switchLeaderTab('homeRuns','hitting','hr')">홈런</button>
+                <button class="stat-tab-btn"         id="ltab-avg" onclick="switchLeaderTab('battingAverage','hitting','avg')">타율</button>
+                <button class="stat-tab-btn"         id="ltab-rbi" onclick="switchLeaderTab('rbi','hitting','rbi')">타점</button>
+                <button class="stat-tab-btn"         id="ltab-k"   onclick="switchLeaderTab('strikeouts','pitching','k')">탈삼진</button>
+                <button class="stat-tab-btn"         id="ltab-era" onclick="switchLeaderTab('earnedRunAverage','pitching','era')">ERA</button>
+            </div>
+            <div class="stats-wrap" id="leader-content">
+                <div style="padding:24px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>
             </div>`;
+        switchLeaderTab('homeRuns', 'hitting', 'hr');
+    }
+
+    async function switchLeaderTab(stat, group, tabId) {
+        document.querySelectorAll('[id^="ltab-"]').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`ltab-${tabId}`)?.classList.add('active');
+
+        const content = document.getElementById('leader-content');
+        if (!content) return;
+
+        if (leaderCache[stat]) { renderLeaders(leaderCache[stat], stat); return; }
+
+        content.innerHTML = `<div style="padding:24px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
         try {
-            const res = await fetch(`/api/roster/${teamId}`);
+            const r    = await fetch(`/api/leaders?stat=${stat}&group=${group}&limit=15`);
+            const data = await r.json();
+            leaderCache[stat] = data;
+            renderLeaders(data, stat);
+        } catch(e) {
+            content.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
+        }
+    }
+
+    function renderLeaders(leaders, stat) {
+        const content = document.getElementById('leader-content');
+        if (!content) return;
+        const statLabel = { homeRuns:'홈런', battingAverage:'타율', rbi:'타점', strikeouts:'탈삼진', earnedRunAverage:'ERA' };
+        const rankCls   = r => r === 1 ? 'gold' : r === 2 ? 'silver' : r === 3 ? 'bronze' : '';
+
+        const rows = leaders.map(l => `
+            <tr onclick="showPlayerStats(${l.playerId})">
+                <td class="leader-rank ${rankCls(l.rank)}">${l.rank}</td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_60,q_auto:best/v1/people/${l.playerId}/headshot/67/current"
+                             width="32" height="32" style="border-radius:50%; object-fit:cover; object-position:top; background:var(--bg-card); flex-shrink:0;">
+                        <div>
+                            <div style="font-weight:600;">${l.koreanName || l.fullName}</div>
+                            ${l.koreanName ? `<div style="font-size:0.7rem; color:var(--text-3);">${l.fullName}</div>` : ''}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <img src="https://www.mlbstatic.com/team-logos/${l.teamId}.svg" width="16" height="16">
+                        <span style="font-size:0.78rem; color:var(--text-2);">${l.teamName}</span>
+                    </div>
+                </td>
+                <td class="leader-val">${l.value}</td>
+            </tr>`).join('');
+
+        content.innerHTML = `
+            <div style="overflow-x:auto;">
+                <table class="leader-table">
+                    <thead><tr><th>#</th><th>선수</th><th>팀</th><th>${statLabel[stat] || stat}</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
+    // ── Team Compare ───────────────────────────────────
+    function showCompare() {
+        setActiveTeam(null);
+        setActiveNav('compare');
+        closeSidebar();
+        const display = document.getElementById('content-display');
+
+        const opts = Object.values(allTeams)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(t => `<option value="${t.id}">${t.name}</option>`)
+            .join('');
+
+        display.innerHTML = `
+            <p class="page-title">팀 비교</p>
+            <div class="compare-select-row">
+                <select class="compare-select" id="cmp-t1">${opts}</select>
+                <span style="color:var(--text-3); font-weight:700; flex-shrink:0;">vs</span>
+                <select class="compare-select" id="cmp-t2">${opts}</select>
+                <button class="compare-btn" onclick="loadCompare()">비교하기</button>
+            </div>
+            <div id="compare-result">
+                <p style="color:var(--text-3); font-size:0.85rem; text-align:center; padding:40px 0;">두 팀을 선택하고 비교하기를 눌러주세요.</p>
+            </div>`;
+    }
+
+    async function loadCompare() {
+        const t1 = document.getElementById('cmp-t1')?.value;
+        const t2 = document.getElementById('cmp-t2')?.value;
+        const result = document.getElementById('compare-result');
+        if (!t1 || !t2 || t1 === t2) {
+            result.innerHTML = `<p style="color:var(--red); font-size:0.85rem;">서로 다른 두 팀을 선택해주세요.</p>`;
+            return;
+        }
+        result.innerHTML = `<div style="padding:24px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+
+        try {
+            const r    = await fetch(`/api/compare?team1=${t1}&team2=${t2}`);
+            const data = await r.json();
+            const team1 = allTeams[t1] || {};
+            const team2 = allTeams[t2] || {};
+            const h1 = data.team1.hitting,  h2 = data.team2.hitting;
+            const p1 = data.team1.pitching, p2 = data.team2.pitching;
+
+            const mkHeader = (tid, name) => `
+                <div class="compare-header">
+                    <img src="https://www.mlbstatic.com/team-logos/${tid}.svg" width="40" height="40">
+                    <div class="compare-header-name">${name}</div>
+                </div>`;
+
+            const mkRow = (label, v1, v2, higherBetter = true) => {
+                const n1 = parseFloat(v1) || 0, n2 = parseFloat(v2) || 0;
+                let c1 = '', c2 = '';
+                if (n1 !== n2) {
+                    const leftBetter = higherBetter ? n1 > n2 : n1 < n2;
+                    c1 = leftBetter ? 'better' : 'worse';
+                    c2 = leftBetter ? 'worse'  : 'better';
+                }
+                return `
+                    <div class="compare-cell">
+                        <span class="compare-stat-label">${label}</span>
+                        <span class="compare-stat-val ${c1}">${v1 || '-'}</span>
+                    </div>
+                    <div class="compare-cell">
+                        <span class="compare-stat-val ${c2}">${v2 || '-'}</span>
+                        <span class="compare-stat-label">${label}</span>
+                    </div>`;
+            };
+
+            result.innerHTML = `
+                <div class="compare-grid">
+                    ${mkHeader(t1, team1.name || `Team ${t1}`)}
+                    ${mkHeader(t2, team2.name || `Team ${t2}`)}
+                    <div class="compare-section-label">타격</div>
+                    ${mkRow('팀 타율', h1.avg, h2.avg)}
+                    ${mkRow('홈런', h1.homeRuns, h2.homeRuns)}
+                    ${mkRow('타점', h1.rbi, h2.rbi)}
+                    ${mkRow('득점', h1.runs, h2.runs)}
+                    ${mkRow('OPS', h1.ops, h2.ops)}
+                    ${mkRow('도루', h1.stolenBases, h2.stolenBases)}
+                    <div class="compare-section-label">투구</div>
+                    ${mkRow('ERA', p1.era, p2.era, false)}
+                    ${mkRow('WHIP', p1.whip, p2.whip, false)}
+                    ${mkRow('탈삼진', p1.strikeOuts, p2.strikeOuts)}
+                    ${mkRow('피홈런', p1.homeRuns, p2.homeRuns, false)}
+                </div>`;
+        } catch(e) {
+            result.innerHTML = `<div style="color:var(--red);">데이터를 불러오지 못했습니다.</div>`;
+        }
+    }
+
+    // ── Favorites ──────────────────────────────────────
+    function getFavs()     { try { return JSON.parse(localStorage.getItem('mlb_favs') || '[]'); } catch { return []; } }
+    function saveFavs(arr) { localStorage.setItem('mlb_favs', JSON.stringify(arr)); }
+    function isFav(id)     { return getFavs().some(f => f.id === id); }
+
+    function toggleFav(e, playerId, fullName, koreanName, teamId) {
+        e.stopPropagation();
+        const favs = getFavs();
+        const idx  = favs.findIndex(f => f.id === playerId);
+        if (idx >= 0) favs.splice(idx, 1);
+        else favs.push({ id: playerId, fullName, koreanName, teamId });
+        saveFavs(favs);
+        renderFavorites();
+        // 카드의 별 아이콘 업데이트
+        document.querySelectorAll(`.star-btn[data-pid="${playerId}"]`).forEach(btn => {
+            btn.classList.toggle('starred', idx < 0);
+            btn.textContent = idx < 0 ? '★' : '☆';
+        });
+        // 프로필 버튼 업데이트
+        const profBtn = document.getElementById('prof-fav-btn');
+        if (profBtn && parseInt(profBtn.dataset.pid) === playerId) updateProfFavBtn(playerId);
+    }
+
+    function renderFavorites() {
+        const favs = getFavs();
+        const el   = document.getElementById('fav-list');
+        if (!el) return;
+        if (!favs.length) { el.innerHTML = `<div class="fav-empty">즐겨찾기 없음</div>`; return; }
+        el.innerHTML = favs.map(f => `
+            <div class="fav-item" onclick="showPlayerStats(${f.id})">
+                ${f.teamId ? `<img src="https://www.mlbstatic.com/team-logos/${f.teamId}.svg" width="16" height="16">` : ''}
+                <span>${f.koreanName || f.fullName}</span>
+            </div>`).join('');
+    }
+
+    function updateProfFavBtn(playerId) {
+        const btn = document.getElementById('prof-fav-btn');
+        if (!btn) return;
+        const starred = isFav(playerId);
+        btn.classList.toggle('starred', starred);
+        btn.textContent = starred ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기';
+    }
+
+    // ── Position badge class helper ────────────────────
+    function posClass(type) {
+        return { 'Pitcher':'badge-pitcher', 'Catcher':'badge-catcher', 'Infielder':'badge-infielder',
+                 'Outfielder':'badge-outfielder', 'Two-Way Player':'badge-twoway', 'Designated Hitter':'badge-dh' }[type] || '';
+    }
+
+    // ── Team Roster ───────────────────────────────────
+    async function showTeamDetail(teamId) {
+        currentTeamId = teamId;
+        closeSidebar();
+        setActiveTeam(teamId);
+        setActiveNav(null);
+        const display = document.getElementById('content-display');
+        display.innerHTML = `<div class="player-grid">${[...Array(15)].map(() =>
+            `<div class="skel" style="height:215px; border-radius:10px;"></div>`).join('')}</div>`;
+        try {
+            const res  = await fetch(`/api/roster/${teamId}`);
             const data = await res.json();
+            const team = allTeams[teamId] || {};
 
             const cards = data.roster.map(item => {
-                const p = item.person;
+                const p      = item.person;
                 const imgUrl = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${p.id}/headshot/67/current`;
+                const ptype  = item.position.type || '';
+                const bCls   = posClass(ptype);
+                const starred = isFav(p.id);
+                const safeKo  = (p.koreanName || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                const safeFn  = p.fullName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
                 return `
-                    <div class="player-col" data-pos-type="${item.position.type || ''}">
-                        <div class="player-card" onclick="showPlayerStats(${p.id})">
-                            <img src="${imgUrl}" class="player-card-img" alt="${p.fullName}">
-                            <div class="player-card-body">
-                                <div class="player-card-name">${p.fullName}</div>
-                                <p class="player-card-sub">${item.position.abbreviation} | No.${item.jerseyNumber || '-'}</p>
-                            </div>
+                    <div class="player-card" data-pos-type="${ptype}" onclick="showPlayerStats(${p.id})">
+                        <img src="${imgUrl}" class="player-card-img" alt="${p.fullName}">
+                        <div class="player-pos-badge ${bCls}">${item.position.abbreviation}</div>
+                        <button class="star-btn ${starred ? 'starred' : ''}" data-pid="${p.id}"
+                            onclick="toggleFav(event,${p.id},'${safeFn}','${safeKo}',${teamId})">${starred ? '★' : '☆'}</button>
+                        <div class="player-card-body">
+                            <div class="player-card-name">${p.koreanName || p.fullName}</div>
+                            <p class="player-card-sub" style="font-size:0.65rem; opacity:0.6;">${p.fullName}</p>
+                            <p class="player-card-sub">No.${item.jerseyNumber || '-'}</p>
                         </div>
                     </div>`;
             }).join('');
 
             display.innerHTML = `
-                <div class="container-fluid">
-                    <div class="d-flex align-items-center mb-3">
-                        <button onclick="showStandings()" class="btn btn-outline-warning btn-sm me-3">← 뒤로가기</button>
-                        <h3 class="text-white fw-bold m-0">팀 로스터</h3>
+                <div class="roster-top">
+                    <button class="back-btn" onclick="showStandings()">← 순위표</button>
+                    <img src="https://www.mlbstatic.com/team-logos/${teamId}.svg" width="46" height="46">
+                    <div>
+                        <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.45rem; font-weight:700;">${team.name || '팀 로스터'}</div>
+                        <div style="font-size:0.75rem; color:var(--text-3);">2026 Active Roster · ${data.roster.length}명</div>
                     </div>
-                    <div class="mb-3 d-flex gap-2 flex-wrap">
-                        <button class="btn btn-warning btn-sm pos-filter-btn" data-filter="all" onclick="filterRoster('all')">전체</button>
-                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Pitcher" onclick="filterRoster('Pitcher')">투수</button>
-                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Catcher" onclick="filterRoster('Catcher')">포수</button>
-                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Infielder" onclick="filterRoster('Infielder')">내야수</button>
-                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Outfielder" onclick="filterRoster('Outfielder')">외야수</button>
-                        <button class="btn btn-outline-secondary btn-sm pos-filter-btn" data-filter="Designated Hitter" onclick="filterRoster('Designated Hitter')">지명타자</button>
-                    </div>
-                    <div class="player-grid">${cards}</div>
-                </div>`;
+                </div>
+                <div class="filter-bar">
+                    <button class="fpill active" data-filter="all"               onclick="filterRoster('all')">전체</button>
+                    <button class="fpill"         data-filter="Pitcher"           onclick="filterRoster('Pitcher')">투수</button>
+                    <button class="fpill"         data-filter="Catcher"           onclick="filterRoster('Catcher')">포수</button>
+                    <button class="fpill"         data-filter="Infielder"         onclick="filterRoster('Infielder')">내야수</button>
+                    <button class="fpill"         data-filter="Outfielder"        onclick="filterRoster('Outfielder')">외야수</button>
+                    <button class="fpill"         data-filter="Designated Hitter" onclick="filterRoster('Designated Hitter')">지명타자</button>
+                </div>
+                <div class="player-grid">${cards}</div>`;
         } catch(e) {
-            display.innerHTML = `<div class="alert alert-danger">로스터 정보를 불러오지 못했습니다.</div>`;
+            display.innerHTML = `<p style="color:var(--red);">로스터 정보를 불러오지 못했습니다.</p>`;
         }
     }
 
     function filterRoster(type) {
-        document.querySelectorAll('.player-col').forEach(col => {
-            col.style.display = (type === 'all' || col.dataset.posType === type) ? '' : 'none';
+        document.querySelectorAll('.player-card[data-pos-type]').forEach(card => {
+            card.style.display = (type === 'all' || card.dataset.posType === type) ? '' : 'none';
         });
-        document.querySelectorAll('.pos-filter-btn').forEach(btn => {
-            const active = btn.dataset.filter === type;
-            btn.className = `btn btn-sm pos-filter-btn ${active ? 'btn-warning' : 'btn-outline-secondary'}`;
+        document.querySelectorAll('.fpill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === type);
         });
     }
 
-    // ── 선수 상세 ─────────────────────────────────────────────────
+    // ── Player Profile ────────────────────────────────
     async function showPlayerStats(playerId) {
+        // 이전 차트 정리 + 탭 캐시 초기화
+        if (recentChartInst) { recentChartInst.destroy(); recentChartInst = null; }
+        delete tabLoaded[`${playerId}-career`];
+        delete tabLoaded[`${playerId}-recent`];
+
         const display = document.getElementById('content-display');
         display.innerHTML = `
-            <div class="text-center" style="margin-top:100px;">
-                <div class="spinner-border text-primary"></div>
-                <p class="mt-2">데이터를 불러오는 중...</p>
-            </div>`;
-        try {
-            const res = await fetch(`/api/player/${playerId}`);
-            const data = await res.json();
-            const player = data.info;
-            const isPitcher = data.is_pitcher;
+            <div style="display:flex; gap:20px; margin-bottom:20px;">
+                <div class="skel" style="width:130px; height:130px; border-radius:10px; flex-shrink:0;"></div>
+                <div style="flex:1; display:flex; flex-direction:column; gap:10px; padding-top:4px;">
+                    <div class="skel" style="height:32px; width:55%;"></div>
+                    <div class="skel" style="height:14px; width:25%;"></div>
+                    <div style="display:flex; gap:14px; margin-top:6px;">
+                        ${[...Array(3)].map(() => `<div class="skel" style="height:38px; width:90px;"></div>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="skel" style="height:300px;"></div>`;
 
-            const seasonRows = data.stats.map(item => `
-                <tr>
-                    <td class="text-white opacity-75 ps-4">${item.Info}</td>
-                    <td class="fw-bold text-warning text-end pe-4">${item.Record}</td>
-                </tr>`).join('');
+        try {
+            const res     = await fetch(`/api/player/${playerId}`);
+            const data    = await res.json();
+            const player  = data.info;
+            const isPitcher = data.is_pitcher;
+            const isTwoway  = data.is_twoway;
+            const teamId    = player.currentTeam?.id || 0;
+
+            const mkRows = (list) => list.map(item => `
+                <div class="stat-row">
+                    <span class="stat-label">${item.Info}</span>
+                    <span class="stat-val">${item.Record}</span>
+                </div>`).join('');
+
+            const seasonContent = isTwoway ? `
+                <div class="twoway-grid">
+                    <div class="twoway-col">
+                        <div class="twoway-col-head bat-head">⚾ Batting</div>
+                        ${mkRows(data.hitting_stats)}
+                    </div>
+                    <div class="twoway-col">
+                        <div class="twoway-col-head pit-head">🎯 Pitching</div>
+                        ${mkRows(data.pitching_stats)}
+                    </div>
+                </div>` : mkRows(data.stats);
+
+            const safeKo = (data.korean_name || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const safeFn = (player.fullName || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const starred = isFav(playerId);
 
             display.innerHTML = `
-                <div class="container py-2">
-                    <div class="d-flex align-items-center mb-4">
-                        <h2 class="fw-bold m-0 text-white" onclick="goBack()" style="cursor:pointer;">
-                            <span class="text-warning">←</span> Player Profile
-                        </h2>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                    <button class="back-btn" onclick="goBack()">← 로스터</button>
+                    <button class="profile-fav-btn ${starred ? 'starred' : ''}" id="prof-fav-btn" data-pid="${playerId}"
+                        onclick="toggleFav(event,${playerId},'${safeFn}','${safeKo}',${teamId})">${starred ? '★ 즐겨찾기 해제' : '☆ 즐겨찾기'}</button>
+                </div>
+
+                <div class="profile-hero">
+                    <img src="${data.imageUrl}" class="profile-img" alt="${player.fullName}">
+                    <div style="flex:1; min-width:0;">
+                        <div class="profile-name">${data.korean_name || player.fullName}</div>
+                        <div style="font-size:0.82rem; color:var(--text-3); margin-bottom:4px;">${player.fullName}</div>
+                        <div class="profile-pos">${player.primaryPosition.name} &nbsp;·&nbsp; #${player.primaryNumber || '-'}</div>
+                        <div class="profile-meta">
+                            <div>
+                                <span class="pmeta-label">생년월일</span>
+                                <span class="pmeta-val">${player.birthDate || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="pmeta-label">출신지</span>
+                                <span class="pmeta-val">${player.birthCity || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="pmeta-label">신장 / 체중</span>
+                                <span class="pmeta-val">${player.height || '-'} / ${player.weight || '-'}lb</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm border-0 bg-dark text-white text-center p-3">
-                                <img src="${data.imageUrl}" class="mx-auto mt-3" style="width:180px; border-radius:5%; background:var(--bg-card);">
-                                <h3 class="mt-3 fw-bold text-warning">${player.fullName}</h3>
-                                <p class="text-white opacity-75">${player.primaryPosition.name} | No.${player.primaryNumber}</p>
-                                <hr class="border-secondary">
-                                <div class="text-start ps-3">
-                                    <p><strong>Birth:</strong> ${player.birthDate}</p>
-                                    <p><strong>From:</strong> ${player.birthCity}</p>
-                                    <p><strong>H/W:</strong> ${player.height} / ${player.weight}lb</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card shadow-sm border-0 bg-dark">
-                                <div class="card-header bg-dark border-secondary d-flex p-0" style="border-bottom:1px solid var(--border);">
-                                    <button class="stat-tab-btn active" id="tab-season"
-                                        onclick="switchStatTab('season', ${playerId}, ${isPitcher})">2026 시즌</button>
-                                    <button class="stat-tab-btn" id="tab-career"
-                                        onclick="switchStatTab('career', ${playerId}, ${isPitcher})">통산 스탯</button>
-                                    <button class="stat-tab-btn" id="tab-recent"
-                                        onclick="switchStatTab('recent', ${playerId}, ${isPitcher})">최근 10경기</button>
-                                </div>
-                                <div id="tab-pane-season" class="stat-tab-pane active">
-                                    <table class="table table-dark table-hover mb-0">
-                                        <tbody>${seasonRows}</tbody>
-                                    </table>
-                                </div>
-                                <div id="tab-pane-career" class="stat-tab-pane">
-                                    <div class="text-center text-muted p-4" style="font-size:0.85rem;">탭을 클릭하면 불러옵니다.</div>
-                                </div>
-                                <div id="tab-pane-recent" class="stat-tab-pane">
-                                    <div class="text-center text-muted p-4" style="font-size:0.85rem;">탭을 클릭하면 불러옵니다.</div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+
+                <div class="stat-tabs">
+                    <button class="stat-tab-btn active" id="tab-season"
+                        onclick="switchStatTab('season',${playerId},${isPitcher},${isTwoway})">2026 시즌</button>
+                    <button class="stat-tab-btn" id="tab-career"
+                        onclick="switchStatTab('career',${playerId},${isPitcher},${isTwoway})">통산 스탯</button>
+                    <button class="stat-tab-btn" id="tab-recent"
+                        onclick="switchStatTab('recent',${playerId},${isPitcher},${isTwoway})">최근 10경기</button>
+                </div>
+                <div class="stats-wrap">
+                    <div id="tab-pane-season" class="stat-tab-pane active">${seasonContent}</div>
+                    <div id="tab-pane-career" class="stat-tab-pane">
+                        <div style="padding:20px; text-align:center; color:var(--text-3); font-size:0.82rem;">탭을 클릭하면 불러옵니다.</div>
+                    </div>
+                    <div id="tab-pane-recent" class="stat-tab-pane">
+                        <div style="padding:20px; text-align:center; color:var(--text-3); font-size:0.82rem;">탭을 클릭하면 불러옵니다.</div>
                     </div>
                 </div>`;
-        } catch(e) {
-            console.error("오류:", e);
-        }
+        } catch(e) { console.error(e); }
     }
 
-    async function switchStatTab(tab, playerId, isPitcher) {
-        ['season', 'career', 'recent'].forEach(t => {
-            document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-            document.getElementById(`tab-pane-${t}`).classList.toggle('active', t === tab);
+    async function switchStatTab(tab, playerId, isPitcher, isTwoway = false) {
+        ['season','career','recent'].forEach(t => {
+            document.getElementById(`tab-${t}`)?.classList.toggle('active', t === tab);
+            document.getElementById(`tab-pane-${t}`)?.classList.toggle('active', t === tab);
         });
 
-        const key = `${playerId}-${tab}`;
+        const key  = `${playerId}-${tab}`;
         if (tabLoaded[key]) return;
         const pane = document.getElementById(`tab-pane-${tab}`);
 
         if (tab === 'career') {
-            pane.innerHTML = `<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+            pane.innerHTML = `<div style="padding:20px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
             try {
-                const res = await fetch(`/api/player/${playerId}/career`);
-                const data = await res.json();
-                const rows = data.stats.map(item => `
-                    <tr>
-                        <td class="text-white opacity-75 ps-4">${item.Info}</td>
-                        <td class="fw-bold text-warning text-end pe-4">${item.Record}</td>
-                    </tr>`).join('');
-                pane.innerHTML = `<table class="table table-dark table-hover mb-0"><tbody>${rows}</tbody></table>`;
+                const r    = await fetch(`/api/player/${playerId}/career`);
+                const data = await r.json();
+                const mkRows = (list) => list.map(item => `
+                    <div class="stat-row">
+                        <span class="stat-label">${item.Info}</span>
+                        <span class="stat-val">${item.Record}</span>
+                    </div>`).join('');
+                pane.innerHTML = data.is_twoway ? `
+                    <div class="twoway-grid">
+                        <div class="twoway-col">
+                            <div class="twoway-col-head bat-head">⚾ Batting</div>${mkRows(data.hitting_stats)}
+                        </div>
+                        <div class="twoway-col">
+                            <div class="twoway-col-head pit-head">🎯 Pitching</div>${mkRows(data.pitching_stats)}
+                        </div>
+                    </div>` : mkRows(data.stats);
                 tabLoaded[key] = true;
             } catch(e) {
-                pane.innerHTML = `<div class="text-danger p-3">불러오기 실패</div>`;
+                pane.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
             }
 
         } else if (tab === 'recent') {
-            pane.innerHTML = `<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+            pane.innerHTML = `<div style="padding:20px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
             try {
-                const res = await fetch(`/api/player/${playerId}/gamelog`);
-                const data = await res.json();
-                if (!data.games || !data.games.length) {
-                    pane.innerHTML = `<div class="text-muted p-3 text-center" style="font-size:0.85rem;">데이터 없음</div>`;
+                const r    = await fetch(`/api/player/${playerId}/gamelog`);
+                const data = await r.json();
+                if (!data.games?.length) {
+                    pane.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-3); font-size:0.82rem;">데이터 없음</div>`;
                     tabLoaded[key] = true;
                     return;
                 }
-                let thead, rows;
+
+                pane.innerHTML = `<div class="chart-container"><canvas id="recent-chart-canvas"></canvas></div>`;
+                const ctx    = document.getElementById('recent-chart-canvas').getContext('2d');
+                const labels = [...data.games].reverse().map(g => g.date.slice(5));
+
+                const isLight = document.documentElement.dataset.theme === 'light';
+                const gridClr = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+                const tickClr = isLight ? '#57606a' : '#8b949e';
+
+                let chartCfg;
                 if (isPitcher) {
-                    thead = `<tr class="text-center text-muted" style="font-size:0.72rem;">
-                        <th>날짜</th><th>상대</th><th>이닝</th><th>ERA</th><th>탈삼진</th><th>볼넷</th><th>피안타</th>
-                    </tr>`;
-                    rows = data.games.map(g => `
-                        <tr class="text-center" style="font-size:0.82rem;">
-                            <td>${g.date}</td><td style="font-size:0.75rem;">${g.opponent}</td>
-                            <td class="text-warning">${g.inningsPitched}</td>
-                            <td>${g.era}</td><td>${g.strikeOuts}</td><td>${g.baseOnBalls}</td><td>${g.hits}</td>
-                        </tr>`).join('');
+                    chartCfg = {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: '탈삼진',
+                                data: [...data.games].reverse().map(g => g.strikeOuts),
+                                backgroundColor: 'rgba(56,139,253,0.65)',
+                                borderColor: 'rgba(56,139,253,1)',
+                                borderWidth: 1,
+                                yAxisID: 'y',
+                            }, {
+                                label: 'ERA',
+                                data: [...data.games].reverse().map(g => parseFloat(g.era) || 0),
+                                type: 'line',
+                                borderColor: '#f85149',
+                                backgroundColor: 'rgba(248,81,73,0.1)',
+                                tension: 0.3,
+                                pointRadius: 4,
+                                yAxisID: 'y1',
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                x: { ticks: { color: tickClr, font: { size: 10 } }, grid: { color: gridClr } },
+                                y: { ticks: { color: tickClr }, grid: { color: gridClr }, beginAtZero: true,
+                                     title: { display: true, text: 'K', color: '#388bfd', font: { size: 10 } } },
+                                y1: { position: 'right', ticks: { color: '#f85149' }, grid: { drawOnChartArea: false },
+                                      beginAtZero: true, title: { display: true, text: 'ERA', color: '#f85149', font: { size: 10 } } },
+                            },
+                            plugins: { legend: { labels: { color: tickClr, font: { size: 11 } } } }
+                        }
+                    };
                 } else {
-                    thead = `<tr class="text-center text-muted" style="font-size:0.72rem;">
-                        <th>날짜</th><th>상대</th><th>타수</th><th>안타</th><th>홈런</th><th>타점</th><th>타율</th>
-                    </tr>`;
-                    rows = data.games.map(g => `
-                        <tr class="text-center" style="font-size:0.82rem;">
-                            <td>${g.date}</td><td style="font-size:0.75rem;">${g.opponent}</td>
-                            <td>${g.atBats}</td><td class="text-warning">${g.hits}</td>
-                            <td>${g.homeRuns}</td><td>${g.rbi}</td><td>${g.avg}</td>
-                        </tr>`).join('');
+                    chartCfg = {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: '안타',
+                                data: [...data.games].reverse().map(g => g.hits),
+                                backgroundColor: 'rgba(245,166,35,0.7)',
+                                borderColor: 'rgba(245,166,35,1)',
+                                borderWidth: 1,
+                            }, {
+                                label: '홈런',
+                                data: [...data.games].reverse().map(g => g.homeRuns),
+                                backgroundColor: 'rgba(248,81,73,0.7)',
+                                borderColor: 'rgba(248,81,73,1)',
+                                borderWidth: 1,
+                            }, {
+                                label: '타점',
+                                data: [...data.games].reverse().map(g => g.rbi),
+                                backgroundColor: 'rgba(63,185,80,0.6)',
+                                borderColor: 'rgba(63,185,80,1)',
+                                borderWidth: 1,
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: {
+                                x: { ticks: { color: tickClr, font: { size: 10 } }, grid: { color: gridClr } },
+                                y: { ticks: { color: tickClr }, grid: { color: gridClr }, beginAtZero: true },
+                            },
+                            plugins: { legend: { labels: { color: tickClr, font: { size: 11 } } } }
+                        }
+                    };
                 }
-                pane.innerHTML = `
-                    <div style="overflow-x:auto;">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>${thead}</thead><tbody>${rows}</tbody>
-                        </table>
-                    </div>`;
+
+                if (recentChartInst) { recentChartInst.destroy(); }
+                recentChartInst = new Chart(ctx, chartCfg);
                 tabLoaded[key] = true;
             } catch(e) {
-                pane.innerHTML = `<div class="text-danger p-3">불러오기 실패</div>`;
+                pane.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
             }
         }
     }
 
     function goBack() {
         if (currentTeamId) showTeamDetail(currentTeamId);
+        else showStandings();
     }
 </script>
 </body>

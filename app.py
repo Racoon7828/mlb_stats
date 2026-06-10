@@ -62,13 +62,22 @@ def api_teams():
     nl_teams  = [t for t in all_teams if t.get('league', {}).get('id') == 104]
     return jsonify({"american": al_teams, "national": nl_teams})
 
+_IL_LABEL = {'D7':'IL-7','D10':'IL-10','D15':'IL-15','D60':'IL-60','ILF':'IL','RA':'재활'}
+_SHOW_CODES = {'A','D7','D10','D15','D60','ILF','RA'}  # RM(마이너파견), DEV(개발리스트) 제외
+
 @app.route("/api/roster/<int:team_id>")
 def api_roster(team_id):
     roster = get_team_roster(team_id, 2026)
+    roster = [item for item in roster if item.get('status',{}).get('code','A') in _SHOW_CODES]
+
     names      = [item["person"]["fullName"] for item in roster]
     korean_map = get_korean_names_batch(names)
     for item in roster:
         item["person"]["koreanName"] = korean_map.get(item["person"]["fullName"], "")
+        code           = item.get('status',{}).get('code','A')
+        item["isIL"]   = code != 'A'
+        item["ilLabel"] = _IL_LABEL.get(code, 'IL') if code != 'A' else ''
+        item["ilNote"]  = item.get('note', '')
     return jsonify({"roster": roster})
 
 @app.route("/api/player/<int:player_id>")
@@ -275,4 +284,4 @@ def api_compare():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == "__main__": app.run(debug=True, host="0.0.0.0", port=5000)
+if __name__ == "__main__": app.run(debug=True, host="0.0.0.0", port=5001)

@@ -24,3 +24,4 @@ MLBstats api wiki
 ```bash
 https://github.com/toddrob99/MLB-StatsAPI/wiki/Endpoints
 ```
+html 디자인 = claude 제작

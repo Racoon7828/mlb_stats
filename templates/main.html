@@ -41,6 +41,8 @@
             --green:      #1a7f37;
         }
 
+        html { font-size: 150%; }
+
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
@@ -48,6 +50,7 @@
             background: var(--bg-base);
             color: var(--text-1);
             margin: 0;
+            overflow-x: hidden;
         }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -78,7 +81,7 @@
         }
         .sb-logo {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.8rem;
             font-weight: 700;
             letter-spacing: 2px;
             color: var(--accent);
@@ -171,6 +174,14 @@
             text-overflow: ellipsis;
         }
 
+        /* ── Sidebar 원래 크기 고정 (html 150% 스케일 상쇄) ── */
+        .sb-logo                  { font-size: 22px; }
+        .sb-search-wrap input     { font-size: 13px; }
+        .sb-search-ico            { font-size: 12px; }
+        .sb-league                { font-size: 10px; }
+        .sb-nav-btn               { font-size: 11px; }
+        .sb-team span             { font-size: 13px; }
+
         /* ── Favorites ─────────────────────────────── */
         .fav-section {
             border-top: 1px solid var(--border);
@@ -178,7 +189,7 @@
             flex-shrink: 0;
         }
         .fav-label {
-            font-size: 0.65rem;
+            font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -191,7 +202,7 @@
             gap: 8px;
             padding: 5px 0;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 13px;
             color: var(--text-1);
             transition: color 0.12s;
             white-space: nowrap;
@@ -199,7 +210,7 @@
             text-overflow: ellipsis;
         }
         .fav-item:hover { color: var(--accent); }
-        .fav-empty { font-size: 0.75rem; color: var(--text-3); padding: 4px 0; }
+        .fav-empty { font-size: 12px; color: var(--text-3); padding: 4px 0; }
 
         /* ── Main ──────────────────────────────────── */
         #main-content {
@@ -208,6 +219,8 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            min-width: 0;
+            overflow-x: hidden;
         }
 
         /* ── Header ────────────────────────────────── */
@@ -231,7 +244,7 @@
 
         .hd-title {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.67rem;
             font-weight: 700;
             letter-spacing: 1.5px;
             color: var(--accent);
@@ -267,19 +280,40 @@
         .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
         /* ── Score Banner ──────────────────────────── */
-        #score-banner {
+        #score-banner-container {
+            display: flex;
+            align-items: stretch;
             background: var(--bg-surface);
             border-bottom: 1px solid var(--border);
-            padding: 0 24px;
+            min-height: 52px;
+        }
+        #score-banner {
+            flex-grow: 1;
+            padding: 0 12px;
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            min-height: 52px;
             align-items: center;
+            scroll-behavior: smooth;
         }
-        #score-banner::-webkit-scrollbar { display: none; }
+        #score-banner::-webkit-scrollbar { height: 3px; }
+        #score-banner::-webkit-scrollbar-track { background: transparent; }
+        #score-banner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .banner-nav-btn {
+            background: none;
+            border: none;
+            border-right: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 1.1rem;
+            padding: 0 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: color 0.15s, background 0.15s;
+            line-height: 1;
+        }
+        .banner-nav-btn:last-child { border-right: none; border-left: 1px solid var(--border); }
+        .banner-nav-btn:hover:not(:disabled) { color: var(--accent); background: var(--bg-hover); }
+        .banner-nav-btn:disabled { color: var(--border-lt); cursor: default; }
 
         .score-game {
             display: flex;
@@ -411,7 +445,7 @@
         /* ── Page title ────────────────────────────── */
         .page-title {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 700;
             margin: 0 0 18px;
             color: var(--text-1);
@@ -420,8 +454,11 @@
         /* ── Standings ─────────────────────────────── */
         .standings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 14px;
+        }
+        @media (max-width: 1024px) {
+            .standings-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         .div-card {
@@ -590,6 +627,29 @@
         .badge-twoway     { color: #a78bfa; }
         .badge-dh         { color: var(--text-2); }
 
+        /* 부상자 배지 */
+        .il-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(248,81,73,0.82);
+            backdrop-filter: blur(4px);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .il-note {
+            font-size: 0.65rem;
+            color: var(--red);
+            margin: 2px 0 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         /* 즐겨찾기 별 버튼 */
         .star-btn {
             position: absolute;
@@ -610,8 +670,8 @@
             z-index: 5;
             line-height: 1;
         }
-        .star-btn:hover { color: var(--accent); background: rgba(0,0,0,0.7); }
-        .star-btn.starred { color: var(--accent); }
+        .star-btn:hover { color: #f5c518; background: rgba(0,0,0,0.7); }
+        .star-btn.starred { color: #f5c518; }
 
         .player-card-body { padding: 10px 10px 12px; }
         .player-card-name {
@@ -648,7 +708,7 @@
         }
         .profile-name {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 2rem;
+            font-size: 2.67rem;
             font-weight: 700;
             line-height: 1.1;
             margin-bottom: 4px;
@@ -677,7 +737,7 @@
             margin-left: auto;
         }
         .profile-fav-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .profile-fav-btn.starred { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+        .profile-fav-btn.starred { color: #f5c518; border-color: #f5c518; background: rgba(245,197,24,0.12); }
 
         /* Stat tabs */
         .stat-tabs {
@@ -734,6 +794,30 @@
 
         /* Chart */
         .chart-container { padding: 16px; position: relative; height: 260px; }
+        .gamelog-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        .gamelog-table th {
+            background: var(--bg-card);
+            color: var(--text-3);
+            font-weight: 600;
+            padding: 6px 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.03em;
+        }
+        .gamelog-table td {
+            padding: 6px 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-1);
+        }
+        .gamelog-table tbody tr:hover { background: var(--bg-hover); }
+        .gamelog-table td:first-child,
+        .gamelog-table td:nth-child(2) { color: var(--text-2); }
 
         /* ── Two-Way Player 2열 레이아웃 ──────────── */
         .twoway-grid {
@@ -831,55 +915,90 @@
         .compare-btn:hover { opacity: 0.85; }
 
         .compare-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
         }
-        .compare-header {
+        .compare-team-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             background: var(--bg-surface);
-            padding: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+        .compare-header {
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid var(--border);
         }
+        .compare-header:first-child { border-right: 1px solid var(--border); }
         .compare-header-name {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
         }
         .compare-section-label {
             background: var(--bg-card);
-            padding: 8px 16px;
-            font-size: 0.63rem;
+            padding: 7px 16px;
+            font-size: 0.62rem;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--text-3);
             border-bottom: 1px solid var(--border);
-            grid-column: 1 / -1;
         }
-        .compare-cell {
-            background: var(--bg-surface);
-            padding: 10px 16px;
-            display: flex;
+        .compare-row {
+            display: grid;
+            grid-template-columns: 72px 1fr 72px;
             align-items: center;
-            justify-content: space-between;
+            padding: 9px 16px;
+            gap: 10px;
             border-bottom: 1px solid var(--border);
-            border-right: 1px solid var(--border);
+            background: var(--bg-surface);
         }
-        .compare-cell:nth-child(even) { border-right: none; justify-content: space-between; flex-direction: row-reverse; }
-        .compare-stat-label { font-size: 0.78rem; color: var(--text-2); }
-        .compare-stat-val {
+        .compare-row:last-child { border-bottom: none; }
+        .cmp-val {
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 1.05rem;
             font-weight: 700;
             color: var(--text-1);
+            white-space: nowrap;
         }
-        .compare-stat-val.better { color: var(--green); }
-        .compare-stat-val.worse  { color: var(--text-3); }
+        .cmp-val.left  { text-align: right; }
+        .cmp-val.right { text-align: left; }
+        .cmp-val.better { color: var(--green); }
+        .cmp-val.worse  { color: var(--text-3); }
+        .cmp-bar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .cmp-bar-label {
+            font-size: 0.68rem;
+            color: var(--text-3);
+            letter-spacing: 0.04em;
+        }
+        .cmp-bar-track {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            display: flex;
+            overflow: hidden;
+        }
+        .cmp-bar-left {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px 0 0 3px;
+            transition: width 0.4s ease;
+        }
+        .cmp-bar-right {
+            height: 100%;
+            background: #60a5fa;
+            border-radius: 0 3px 3px 0;
+            transition: width 0.4s ease;
+        }
 
         /* ── Overlay ───────────────────────────────── */
         #sidebar-overlay {
@@ -928,6 +1047,9 @@
                 <button class="sb-nav-btn" data-nav="leaderboard" onclick="showLeaderboard()">리더보드</button>
                 <button class="sb-nav-btn" data-nav="compare" onclick="showCompare()">팀 비교</button>
             </div>
+            <div style="padding: 6px 14px; border-bottom: 1px solid var(--border);">
+                <button class="sb-nav-btn" data-nav="favorites" onclick="showFavorites()" style="width:100%;">★ 즐겨찾기</button>
+            </div>
 
             <div class="sb-body">
                 <div class="sb-league">American League</div>
@@ -936,11 +1058,6 @@
                 <div id="nl-list"></div>
             </div>
 
-            <!-- 즐겨찾기 -->
-            <div class="fav-section">
-                <div class="fav-label">★ 즐겨찾기</div>
-                <div id="fav-list"><div class="fav-empty">즐겨찾기 없음</div></div>
-            </div>
         </div>
 
         <!-- ── Main ── -->
@@ -968,9 +1085,13 @@
                 </div>
             </div>
 
-            <!-- 오늘의 경기 스코어 배너 -->
-            <div id="score-banner">
-                <span style="color:var(--text-3); font-size:0.75rem;">경기 정보 로딩 중...</span>
+            <!-- 경기 전적 배너 -->
+            <div id="score-banner-container">
+                <button class="banner-nav-btn" id="banner-prev" onclick="shiftBanner(-1)">‹</button>
+                <div id="score-banner">
+                    <span style="color:var(--text-3); font-size:0.75rem;">경기 정보 로딩 중...</span>
+                </div>
+                <button class="banner-nav-btn" id="banner-next" onclick="shiftBanner(1)" disabled>›</button>
             </div>
 
             <div id="content-display">
@@ -983,6 +1104,7 @@
                     <div class="skel" style="height:220px;"></div>
                 </div>
             </div>
+
 
         </div>
     </div>
@@ -998,7 +1120,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         initTheme();
         loadScoreBanner();
-        renderFavorites();
 
         fetch('/api/teams')
             .then(r => r.json())
@@ -1036,47 +1157,94 @@
     }
 
     // ── Score Banner ───────────────────────────────────
-    async function loadScoreBanner() {
-        const banner = document.getElementById('score-banner');
-        try {
-            const today = new Date().toISOString().slice(0, 10);
-            const r = await fetch(`/api/schedule?date=${today}`);
-            const games = await r.json();
+    let bannerDateStr = '';
 
-            if (!games.length) {
-                banner.innerHTML = `<span style="color:var(--text-3); font-size:0.75rem;">오늘 예정된 경기 없음</span>`;
+    async function loadScoreBanner() {
+        // 최근 완료 경기 자동 탐색
+        for (let i = 0; i <= 3; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toLocaleDateString('en-CA');
+            const r   = await fetch(`/api/schedule?date=${dateStr}`);
+            const all = await r.json();
+            if (all.filter(g => g.status === 'Final').length) {
+                await loadBannerForDate(dateStr);
                 return;
             }
-
-            banner.innerHTML = games.map(g => {
-                const isLive  = g.status === 'Live';
-                const isFinal = g.status === 'Final';
-                const hasScore = isLive || isFinal;
-                const awayWin = isFinal && g.away.score > g.home.score;
-                const homeWin = isFinal && g.home.score > g.away.score;
-
-                let statusLabel = '예정';
-                if (isFinal) statusLabel = '종료';
-                else if (isLive) statusLabel = `${g.inning}회 ${g.inningHalf === 'Top' ? '▲' : '▼'}`;
-
-                return `<div class="score-game">
-                    <div class="score-team">
-                        <img src="https://www.mlbstatic.com/team-logos/${g.away.id}.svg" width="18" height="18">
-                        <span style="color:var(--text-2); font-size:0.75rem;">${g.away.name}</span>
-                        ${hasScore ? `<span class="score-num ${awayWin ? 'win' : ''}">${g.away.score}</span>` : ''}
-                    </div>
-                    <span class="score-sep">–</span>
-                    <div class="score-team">
-                        ${hasScore ? `<span class="score-num ${homeWin ? 'win' : ''}">${g.home.score}</span>` : ''}
-                        <span style="color:var(--text-2); font-size:0.75rem;">${g.home.name}</span>
-                        <img src="https://www.mlbstatic.com/team-logos/${g.home.id}.svg" width="18" height="18">
-                    </div>
-                    <span class="score-status ${isLive ? 'live' : ''}">${statusLabel}</span>
-                </div>`;
-            }).join('');
-        } catch(e) {
-            banner.innerHTML = '';
         }
+        document.getElementById('score-banner').innerHTML =
+            `<span style="color:var(--text-3); font-size:0.75rem;">최근 경기 없음</span>`;
+    }
+
+    async function loadBannerForDate(dateStr) {
+        const banner = document.getElementById('score-banner');
+        banner.innerHTML = `<span style="color:var(--text-3); font-size:0.75rem;">로딩 중...</span>`;
+        try {
+            const r   = await fetch(`/api/schedule?date=${dateStr}`);
+            const all = await r.json();
+            bannerDateStr = dateStr;
+            updateBannerNav();
+            if (!all.length) {
+                banner.innerHTML = `<span style="color:var(--text-3); font-size:0.75rem;">해당 날짜 경기 없음</span>`;
+                return;
+            }
+            renderBannerGames(all, dateStr);
+        } catch(e) { banner.innerHTML = ''; }
+    }
+
+    function shiftBanner(dir) {
+        const banner = document.getElementById('score-banner');
+        // 배너 안에 경기가 있고 스크롤 여지가 있으면 먼저 스크롤
+        const scrollAmt = banner.clientWidth * 0.7;
+        const atLeft  = banner.scrollLeft <= 0;
+        const atRight = banner.scrollLeft + banner.clientWidth >= banner.scrollWidth - 2;
+        if (dir === -1 && !atLeft) { banner.scrollLeft -= scrollAmt; return; }
+        if (dir ===  1 && !atRight) { banner.scrollLeft += scrollAmt; return; }
+
+        // 스크롤 끝에 도달하면 날짜 이동
+        if (!bannerDateStr) return;
+        const [y, m, d] = bannerDateStr.split('-').map(Number);
+        const date = new Date(y, m - 1, d);
+        date.setDate(date.getDate() + dir);
+        const newDate = date.toLocaleDateString('en-CA');
+        const today   = new Date().toLocaleDateString('en-CA');
+        if (newDate > today) return;
+        loadBannerForDate(newDate);
+    }
+
+    function updateBannerNav() {
+        const today   = new Date().toLocaleDateString('en-CA');
+        const nextBtn = document.getElementById('banner-next');
+        if (nextBtn) nextBtn.disabled = (bannerDateStr >= today);
+    }
+
+    function renderBannerGames(games, dateStr) {
+        const banner = document.getElementById('score-banner');
+        const label  = `<span style="color:var(--text-3); font-size:0.7rem; white-space:nowrap; flex-shrink:0; margin-right:4px;">${dateStr}</span>`;
+        banner.innerHTML = label + games.map(g => {
+            const isFinal  = g.status === 'Final';
+            const isLive   = g.status === 'Live';
+            const hasScore = isFinal || isLive;
+            const awayWin  = isFinal && g.away.score > g.home.score;
+            const homeWin  = isFinal && g.home.score > g.away.score;
+            let statusLabel = '예정';
+            if (isFinal) statusLabel = '종료';
+            else if (isLive) statusLabel = `${g.inning}회 ${g.inningHalf === 'Top' ? '▲' : '▼'}`;
+            return `<div class="score-game">
+                <div class="score-team">
+                    <img src="https://www.mlbstatic.com/team-logos/${g.away.id}.svg" width="18" height="18">
+                    <span style="color:var(--text-2); font-size:0.75rem;">${g.away.name}</span>
+                    ${hasScore ? `<span class="score-num ${awayWin ? 'win' : ''}">${g.away.score}</span>` : ''}
+                </div>
+                <span class="score-sep">–</span>
+                <div class="score-team">
+                    ${hasScore ? `<span class="score-num ${homeWin ? 'win' : ''}">${g.home.score}</span>` : ''}
+                    <span style="color:var(--text-2); font-size:0.75rem;">${g.home.name}</span>
+                    <img src="https://www.mlbstatic.com/team-logos/${g.home.id}.svg" width="18" height="18">
+                </div>
+                <span class="score-status ${isLive ? 'live' : ''}">${statusLabel}</span>
+            </div>`;
+        }).join('');
     }
 
     // ── Sidebar helpers ────────────────────────────────
@@ -1203,7 +1371,7 @@
         }).join('');
 
         display.innerHTML = `
-            <p class="page-title">2026 Division Standings</p>
+            <p class="page-title">2026 지구별 순위</p>
             <div class="standings-grid">${cards}</div>`;
     }
 
@@ -1318,57 +1486,71 @@
             result.innerHTML = `<p style="color:var(--red); font-size:0.85rem;">서로 다른 두 팀을 선택해주세요.</p>`;
             return;
         }
-        result.innerHTML = `<div style="padding:24px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+        result.innerHTML = `<p style="color:var(--text-3); font-size:0.85rem; text-align:center; padding:32px 0;">불러오는 중...</p>`;
 
         try {
             const r    = await fetch(`/api/compare?team1=${t1}&team2=${t2}`);
             const data = await r.json();
             const team1 = allTeams[t1] || {};
             const team2 = allTeams[t2] || {};
-            const h1 = data.team1.hitting,  h2 = data.team2.hitting;
-            const p1 = data.team1.pitching, p2 = data.team2.pitching;
-
-            const mkHeader = (tid, name) => `
-                <div class="compare-header">
-                    <img src="https://www.mlbstatic.com/team-logos/${tid}.svg" width="40" height="40">
-                    <div class="compare-header-name">${name}</div>
-                </div>`;
+            const h1 = data.team1.hitting  || {}, h2 = data.team2.hitting  || {};
+            const p1 = data.team1.pitching || {}, p2 = data.team2.pitching || {};
 
             const mkRow = (label, v1, v2, higherBetter = true) => {
                 const n1 = parseFloat(v1) || 0, n2 = parseFloat(v2) || 0;
+                const total = n1 + n2;
+                const pct1  = total > 0 ? (n1 / total * 100).toFixed(1) : 50;
+                const pct2  = total > 0 ? (n2 / total * 100).toFixed(1) : 50;
                 let c1 = '', c2 = '';
                 if (n1 !== n2) {
                     const leftBetter = higherBetter ? n1 > n2 : n1 < n2;
                     c1 = leftBetter ? 'better' : 'worse';
                     c2 = leftBetter ? 'worse'  : 'better';
                 }
-                return `
-                    <div class="compare-cell">
-                        <span class="compare-stat-label">${label}</span>
-                        <span class="compare-stat-val ${c1}">${v1 || '-'}</span>
+                return `<div class="compare-row">
+                    <span class="cmp-val left ${c1}">${v1 || '-'}</span>
+                    <div class="cmp-bar-wrap">
+                        <span class="cmp-bar-label">${label}</span>
+                        <div class="cmp-bar-track">
+                            <div class="cmp-bar-left"  style="width:${pct1}%"></div>
+                            <div class="cmp-bar-right" style="width:${pct2}%"></div>
+                        </div>
                     </div>
-                    <div class="compare-cell">
-                        <span class="compare-stat-val ${c2}">${v2 || '-'}</span>
-                        <span class="compare-stat-label">${label}</span>
-                    </div>`;
+                    <span class="cmp-val right ${c2}">${v2 || '-'}</span>
+                </div>`;
             };
 
             result.innerHTML = `
                 <div class="compare-grid">
-                    ${mkHeader(t1, team1.name || `Team ${t1}`)}
-                    ${mkHeader(t2, team2.name || `Team ${t2}`)}
-                    <div class="compare-section-label">타격</div>
-                    ${mkRow('팀 타율', h1.avg, h2.avg)}
-                    ${mkRow('홈런', h1.homeRuns, h2.homeRuns)}
-                    ${mkRow('타점', h1.rbi, h2.rbi)}
-                    ${mkRow('득점', h1.runs, h2.runs)}
-                    ${mkRow('OPS', h1.ops, h2.ops)}
-                    ${mkRow('도루', h1.stolenBases, h2.stolenBases)}
-                    <div class="compare-section-label">투구</div>
-                    ${mkRow('ERA', p1.era, p2.era, false)}
-                    ${mkRow('WHIP', p1.whip, p2.whip, false)}
-                    ${mkRow('탈삼진', p1.strikeOuts, p2.strikeOuts)}
-                    ${mkRow('피홈런', p1.homeRuns, p2.homeRuns, false)}
+                    <div class="compare-team-header">
+                        <div class="compare-header">
+                            <img src="https://www.mlbstatic.com/team-logos/${t1}.svg" width="36" height="36">
+                            <div class="compare-header-name">${team1.name || `Team ${t1}`}</div>
+                        </div>
+                        <div class="compare-header">
+                            <img src="https://www.mlbstatic.com/team-logos/${t2}.svg" width="36" height="36">
+                            <div class="compare-header-name">${team2.name || `Team ${t2}`}</div>
+                        </div>
+                    </div>
+                    <div class="compare-section-label">⚾ 타격</div>
+                    ${mkRow('팀 타율',  h1.avg,         h2.avg)}
+                    ${mkRow('홈런',     h1.homeRuns,    h2.homeRuns)}
+                    ${mkRow('타점',     h1.rbi,         h2.rbi)}
+                    ${mkRow('득점',     h1.runs,        h2.runs)}
+                    ${mkRow('안타',     h1.hits,        h2.hits)}
+                    ${mkRow('OPS',      h1.ops,         h2.ops)}
+                    ${mkRow('출루율',   h1.obp,         h2.obp)}
+                    ${mkRow('장타율',   h1.slg,         h2.slg)}
+                    ${mkRow('도루',     h1.stolenBases, h2.stolenBases)}
+                    ${mkRow('삼진',     h1.strikeOuts,  h2.strikeOuts, false)}
+                    <div class="compare-section-label">⚡ 투구</div>
+                    ${mkRow('ERA',      p1.era,         p2.era,         false)}
+                    ${mkRow('WHIP',     p1.whip,        p2.whip,        false)}
+                    ${mkRow('탈삼진',   p1.strikeOuts,  p2.strikeOuts)}
+                    ${mkRow('승',       p1.wins,        p2.wins)}
+                    ${mkRow('세이브',   p1.saves,       p2.saves)}
+                    ${mkRow('피홈런',   p1.homeRuns,    p2.homeRuns,    false)}
+                    ${mkRow('볼넷 허용',p1.baseOnBalls, p2.baseOnBalls, false)}
                 </div>`;
         } catch(e) {
             result.innerHTML = `<div style="color:var(--red);">데이터를 불러오지 못했습니다.</div>`;
@@ -1399,15 +1581,53 @@
     }
 
     function renderFavorites() {
-        const favs = getFavs();
-        const el   = document.getElementById('fav-list');
-        if (!el) return;
-        if (!favs.length) { el.innerHTML = `<div class="fav-empty">즐겨찾기 없음</div>`; return; }
-        el.innerHTML = favs.map(f => `
-            <div class="fav-item" onclick="showPlayerStats(${f.id})">
-                ${f.teamId ? `<img src="https://www.mlbstatic.com/team-logos/${f.teamId}.svg" width="16" height="16">` : ''}
-                <span>${f.koreanName || f.fullName}</span>
-            </div>`).join('');
+        // 즐겨찾기 탭이 열려 있으면 목록 새로고침
+        const isActive = document.querySelector('.sb-nav-btn[data-nav="favorites"]')?.classList.contains('active');
+        if (isActive) showFavorites();
+    }
+
+    function showFavorites() {
+        setActiveTeam(null);
+        setActiveNav('favorites');
+        closeSidebar();
+        const display = document.getElementById('content-display');
+        const favs    = getFavs();
+
+        if (!favs.length) {
+            display.innerHTML = `
+                <p class="page-title">즐겨찾기</p>
+                <p style="color:var(--text-3); text-align:center; padding:60px 0;">
+                    즐겨찾기한 선수가 없습니다.<br>
+                    <span style="font-size:0.8rem;">선수 카드의 ☆ 버튼으로 추가하세요.</span>
+                </p>`;
+            return;
+        }
+
+        const cards = favs.map(f => {
+            const imgUrl = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${f.id}/headshot/67/current`;
+            const safeKo = (f.koreanName || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const safeFn = f.fullName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            const teamName = f.teamId ? (allTeams[f.teamId]?.teamName || '') : '';
+            return `
+                <div class="player-card" onclick="showPlayerStats(${f.id})">
+                    <img src="${imgUrl}" class="player-card-img" alt="${f.fullName}">
+                    <button class="star-btn starred" data-pid="${f.id}"
+                        onclick="toggleFav(event,${f.id},'${safeFn}','${safeKo}',${f.teamId||0});">★</button>
+                    <div class="player-card-body">
+                        <div class="player-card-name">${f.koreanName || f.fullName}</div>
+                        <p class="player-card-sub" style="font-size:0.65rem; opacity:0.6;">${f.fullName}</p>
+                        ${f.teamId ? `<p class="player-card-sub" style="display:flex;align-items:center;gap:4px;">
+                            <img src="https://www.mlbstatic.com/team-logos/${f.teamId}.svg" width="12" height="12">
+                            ${teamName}
+                        </p>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+
+        display.innerHTML = `
+            <p class="page-title">즐겨찾기</p>
+            <p style="color:var(--text-3); font-size:0.8rem; margin-bottom:18px;">${favs.length}명</p>
+            <div class="player-grid">${cards}</div>`;
     }
 
     function updateProfFavBtn(playerId) {
@@ -1441,22 +1661,30 @@
             const cards = data.roster.map(item => {
                 const p      = item.person;
                 const imgUrl = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${p.id}/headshot/67/current`;
-                const ptype  = item.position.type || '';
-                const bCls   = posClass(ptype);
+                const ptype   = item.position.type || '';
+                const bCls    = posClass(ptype);
                 const starred = isFav(p.id);
                 const safeKo  = (p.koreanName || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
                 const safeFn  = p.fullName.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                const isIL    = item.isIL || false;
+                const ilBadge = isIL ? `<div class="il-badge">${item.ilLabel}</div>` : '';
+                const cardSub = isIL
+                    ? `<p class="player-card-sub il-note">${item.ilNote || item.ilLabel}</p>`
+                    : `<p class="player-card-sub">No.${item.jerseyNumber || '-'}</p>`;
 
                 return `
-                    <div class="player-card" data-pos-type="${ptype}" onclick="showPlayerStats(${p.id})">
+                    <div class="player-card" data-pos-type="${ptype}" data-il="${isIL}"
+                         style="${isIL ? 'display:none;' : ''}"
+                         onclick="showPlayerStats(${p.id})">
                         <img src="${imgUrl}" class="player-card-img" alt="${p.fullName}">
+                        ${ilBadge}
                         <div class="player-pos-badge ${bCls}">${item.position.abbreviation}</div>
                         <button class="star-btn ${starred ? 'starred' : ''}" data-pid="${p.id}"
                             onclick="toggleFav(event,${p.id},'${safeFn}','${safeKo}',${teamId})">${starred ? '★' : '☆'}</button>
                         <div class="player-card-body">
                             <div class="player-card-name">${p.koreanName || p.fullName}</div>
                             <p class="player-card-sub" style="font-size:0.65rem; opacity:0.6;">${p.fullName}</p>
-                            <p class="player-card-sub">No.${item.jerseyNumber || '-'}</p>
+                            ${cardSub}
                         </div>
                     </div>`;
             }).join('');
@@ -1466,7 +1694,7 @@
                     <button class="back-btn" onclick="showStandings()">← 순위표</button>
                     <img src="https://www.mlbstatic.com/team-logos/${teamId}.svg" width="46" height="46">
                     <div>
-                        <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.45rem; font-weight:700;">${team.name || '팀 로스터'}</div>
+                        <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.93rem; font-weight:700;">${team.name || '팀 로스터'}</div>
                         <div style="font-size:0.75rem; color:var(--text-3);">2026 Active Roster · ${data.roster.length}명</div>
                     </div>
                 </div>
@@ -1485,8 +1713,14 @@
     }
 
     function filterRoster(type) {
-        document.querySelectorAll('.player-card[data-pos-type]').forEach(card => {
-            card.style.display = (type === 'all' || card.dataset.posType === type) ? '' : 'none';
+        document.querySelectorAll('.player-card').forEach(card => {
+            const isIL   = card.dataset.il === 'true';
+            const posType = card.dataset.posType;
+            let show;
+            if (type === 'IL')   show = isIL;
+            else if (type === 'all') show = !isIL;
+            else show = !isIL && posType === type;
+            card.style.display = show ? '' : 'none';
         });
         document.querySelectorAll('.fpill').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.filter === type);
@@ -1568,7 +1802,7 @@
                             </div>
                             <div>
                                 <span class="pmeta-label">신장 / 체중</span>
-                                <span class="pmeta-val">${player.height || '-'} / ${player.weight || '-'}lb</span>
+                                <span class="pmeta-val">${fmtHeight(player.height)} / ${fmtWeight(player.weight)}</span>
                             </div>
                         </div>
                     </div>
@@ -1639,7 +1873,19 @@
                     return;
                 }
 
-                pane.innerHTML = `<div class="chart-container"><canvas id="recent-chart-canvas"></canvas></div>`;
+                // 테이블 생성
+                const tblHead = isPitcher
+                    ? `<tr><th>날짜</th><th>상대</th><th>이닝</th><th>ERA</th><th>탈삼진</th><th>볼넷</th><th>피안타</th></tr>`
+                    : `<tr><th>날짜</th><th>상대</th><th>타수</th><th>안타</th><th>홈런</th><th>타점</th><th>타율</th></tr>`;
+                const tblRows = data.games.map(g => isPitcher
+                    ? `<tr><td>${g.date.slice(5)}</td><td>${g.opponent}</td><td>${g.inningsPitched}</td><td>${g.era}</td><td>${g.strikeOuts}</td><td>${g.baseOnBalls}</td><td>${g.hits}</td></tr>`
+                    : `<tr><td>${g.date.slice(5)}</td><td>${g.opponent}</td><td>${g.atBats}</td><td>${g.hits}</td><td>${g.homeRuns}</td><td>${g.rbi}</td><td>${g.avg}</td></tr>`
+                ).join('');
+                pane.innerHTML = `
+                    <div style="overflow-x:auto; margin-bottom:14px;">
+                        <table class="gamelog-table"><thead>${tblHead}</thead><tbody>${tblRows}</tbody></table>
+                    </div>
+                    <div class="chart-container"><canvas id="recent-chart-canvas"></canvas></div>`;
                 const ctx    = document.getElementById('recent-chart-canvas').getContext('2d');
                 const labels = [...data.games].reverse().map(g => g.date.slice(5));
 
@@ -1726,6 +1972,21 @@
                 pane.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
             }
         }
+    }
+
+    function fmtHeight(h) {
+        // "6' 2\"" → cm 변환
+        if (!h) return '-';
+        const m = h.match(/(\d+)'\s*(\d+)/);
+        if (!m) return h;
+        const cm = Math.round((parseInt(m[1]) * 12 + parseInt(m[2])) * 2.54);
+        return `${cm}cm`;
+    }
+    function fmtWeight(w) {
+        // 파운드(숫자) → kg
+        if (!w) return '-';
+        const kg = Math.round(parseInt(w) * 0.4536);
+        return `${kg}kg`;
     }
 
     function goBack() {

@@ -62,7 +62,7 @@
 
         /* ── Sidebar ───────────────────────────────── */
         #sidebar {
-            width: 256px;
+            width: 290px;
             height: 100vh;
             background: var(--bg-surface);
             position: fixed;
@@ -75,7 +75,7 @@
         }
 
         .sb-head {
-            padding: 16px 14px 10px;
+            padding: 20px 14px 14px;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
         }
@@ -174,13 +174,13 @@
             text-overflow: ellipsis;
         }
 
-        /* ── Sidebar 원래 크기 고정 (html 150% 스케일 상쇄) ── */
-        .sb-logo                  { font-size: 22px; }
-        .sb-search-wrap input     { font-size: 13px; }
-        .sb-search-ico            { font-size: 12px; }
-        .sb-league                { font-size: 10px; }
-        .sb-nav-btn               { font-size: 11px; }
-        .sb-team span             { font-size: 13px; }
+        /* ── Sidebar 폰트 크기 ── */
+        .sb-logo                  { font-size: 30px; }
+        .sb-search-wrap input     { font-size: 15px; }
+        .sb-search-ico            { color: var(--text-3); }
+        .sb-league                { font-size: 13px; }
+        .sb-nav-btn               { font-size: 14px; }
+        .sb-team span             { font-size: 15px; }
 
         /* ── Favorites ─────────────────────────────── */
         .fav-section {
@@ -189,7 +189,7 @@
             flex-shrink: 0;
         }
         .fav-label {
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -202,7 +202,7 @@
             gap: 8px;
             padding: 5px 0;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 15px;
             color: var(--text-1);
             transition: color 0.12s;
             white-space: nowrap;
@@ -210,11 +210,11 @@
             text-overflow: ellipsis;
         }
         .fav-item:hover { color: var(--accent); }
-        .fav-empty { font-size: 12px; color: var(--text-3); padding: 4px 0; }
+        .fav-empty { font-size: 14px; color: var(--text-3); padding: 4px 0; }
 
         /* ── Main ──────────────────────────────────── */
         #main-content {
-            margin-left: 256px;
+            margin-left: 290px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -225,11 +225,11 @@
 
         /* ── Header ────────────────────────────────── */
         #top-header {
-            height: 56px;
+            height: 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 24px;
+            padding: 0 24px 0 20px;
             position: sticky;
             top: 0;
             background: rgba(13,17,23,0.88);
@@ -266,18 +266,24 @@
         #hamburger:hover { background: var(--bg-hover); }
 
         .theme-toggle {
-            background: none;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1100;
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 50%;
             color: var(--text-2);
-            padding: 5px 9px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 0.9rem;
-            line-height: 1;
-            transition: border-color 0.15s, color 0.15s;
-            margin-left: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
         }
-        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+        .theme-toggle:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
 
         /* ── Score Banner ──────────────────────────── */
         #score-banner-container {
@@ -349,7 +355,7 @@
         .score-status.live { color: var(--green); background: rgba(63,185,80,0.12); }
 
         /* ── Search ────────────────────────────────── */
-        #search-wrapper { position: relative; width: 310px; }
+        #search-wrapper { position: relative; width: 380px; }
 
         .search-box {
             display: flex;
@@ -363,7 +369,7 @@
         }
         .search-box:focus-within { border-color: var(--accent); }
 
-        .search-ico { color: var(--text-3); font-size: 0.8rem; }
+        .search-ico { color: var(--text-3); display:flex; align-items:center; flex-shrink:0; }
 
         #player-search {
             background: none;
@@ -389,6 +395,7 @@
             flex-shrink: 0;
             transition: opacity 0.15s;
             font-family: 'Inter', sans-serif;
+            margin-right: 20px;
         }
         .search-btn:hover { opacity: 0.82; }
 
@@ -580,8 +587,8 @@
 
         .player-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
         }
 
         .player-card {
@@ -608,13 +615,13 @@
         }
         .player-pos-badge {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 5px;
+            right: 5px;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
-            border-radius: 4px;
-            padding: 2px 7px;
-            font-size: 0.65rem;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 0.55rem;
             font-weight: 700;
             letter-spacing: 0.5px;
             color: var(--text-2);
@@ -630,19 +637,19 @@
         /* 부상자 배지 */
         .il-badge {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 5px;
+            left: 5px;
             background: rgba(248,81,73,0.82);
             backdrop-filter: blur(4px);
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 0.6rem;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 0.52rem;
             font-weight: 700;
             color: #fff;
             letter-spacing: 0.5px;
         }
         .il-note {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--red);
             margin: 2px 0 0;
             white-space: nowrap;
@@ -653,18 +660,18 @@
         /* 즐겨찾기 별 버튼 */
         .star-btn {
             position: absolute;
-            bottom: 40px;
-            right: 8px;
+            bottom: 32px;
+            right: 5px;
             background: rgba(0,0,0,0.5);
             border: none;
             border-radius: 50%;
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.68rem;
             color: var(--text-3);
             transition: color 0.15s, background 0.15s;
             z-index: 5;
@@ -673,17 +680,17 @@
         .star-btn:hover { color: #f5c518; background: rgba(0,0,0,0.7); }
         .star-btn.starred { color: #f5c518; }
 
-        .player-card-body { padding: 10px 10px 12px; }
+        .player-card-body { padding: 6px 7px 8px; }
         .player-card-name {
-            font-size: 0.8rem;
+            font-size: 0.68rem;
             font-weight: 600;
             color: var(--text-1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
-        .player-card-sub { font-size: 0.7rem; color: var(--text-3); margin: 0; }
+        .player-card-sub { font-size: 0.6rem; color: var(--text-3); margin: 0; }
 
         /* ── Player Profile ────────────────────────── */
         .profile-hero {
@@ -691,14 +698,21 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 24px;
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 24px;
-            align-items: flex-start;
+            align-items: start;
             margin-bottom: 18px;
+            overflow: hidden;
+        }
+        .profile-left {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
         }
         .profile-img {
-            width: 130px;
-            height: 130px;
+            width: 160px;
+            height: 200px;
             border-radius: 10px;
             object-fit: cover;
             object-position: top center;
@@ -708,7 +722,7 @@
         }
         .profile-name {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 2.67rem;
+            font-size: 1.6rem;
             font-weight: 700;
             line-height: 1.1;
             margin-bottom: 4px;
@@ -738,6 +752,44 @@
         }
         .profile-fav-btn:hover { border-color: var(--accent); color: var(--accent); }
         .profile-fav-btn.starred { color: #f5c518; border-color: #f5c518; background: rgba(245,197,24,0.12); }
+
+        /* 수상 경력 섹션 */
+        .profile-awards {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            max-height: 220px;
+            overflow-y: auto;
+            align-self: start;
+        }
+        .profile-awards-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 7px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-award-item {
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-lt);
+        }
+        .profile-award-item:last-child { border-bottom: none; }
+        .award-name {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-1);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+        .award-years {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-3);
+        }
 
         /* Stat tabs */
         .stat-tabs {
@@ -793,7 +845,8 @@
         }
 
         /* Chart */
-        .chart-container { padding: 16px; position: relative; height: 260px; }
+        .chart-container { padding: 16px; position: relative; height: 500px; }
+        .chart-container canvas { display: block; max-width: 100%; }
         .gamelog-table {
             width: 100%;
             border-collapse: collapse;
@@ -1000,6 +1053,13 @@
             transition: width 0.4s ease;
         }
 
+        /* ── Team Logo ─────────────────────────────── */
+        img[src*="team-logos"] {
+            background: #fff;
+            border-radius: 50%;
+            padding: 2px;
+        }
+
         /* ── Overlay ───────────────────────────────── */
         #sidebar-overlay {
             display: none;
@@ -1019,7 +1079,8 @@
             #search-wrapper       { width: 160px; }
             #content-display      { padding: 16px; }
             #score-banner         { padding: 0 16px; }
-            .profile-hero         { flex-direction: column; }
+            .profile-hero         { grid-template-columns: 1fr; }
+            .profile-left         { flex-direction: column; }
             .standings-grid       { grid-template-columns: 1fr; }
             .compare-grid         { grid-template-columns: 1fr; }
         }
@@ -1036,7 +1097,7 @@
             <div class="sb-head">
                 <div class="sb-logo" onclick="showStandings()">⚾ MLB STATS</div>
                 <div class="sb-search-wrap">
-                    <span class="sb-search-ico">🔍</span>
+                    <span class="sb-search-ico" style="display:flex;align-items:center;"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
                     <input type="text" placeholder="팀 검색..." oninput="filterTeams(this.value)">
                 </div>
             </div>
@@ -1066,24 +1127,39 @@
             <div id="top-header">
                 <div style="display:flex; align-items:center;">
                     <button id="hamburger" onclick="toggleSidebar()">☰</button>
-                    <span class="hd-title" onclick="showStandings()">MLB STATS</span>
+                    <span class="hd-title" onclick="showStandings()">⚾ MLB STATS</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
+                <div style="display:flex; align-items:center; gap:12px;">
                     <div id="search-wrapper">
                         <div class="search-box">
-                            <span class="search-ico">🔍</span>
+                            <span class="search-ico"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
                             <input type="text" id="player-search"
                                 placeholder="선수 검색..."
                                 autocomplete="off"
                                 oninput="onSearchInput(this.value)"
                                 onkeyup="if(event.keyCode===13){closeDropdown();searchAndGo();}">
-                            <button class="search-btn" onclick="closeDropdown();searchAndGo()">Search</button>
                         </div>
                         <div id="search-dropdown"></div>
                     </div>
-                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="테마 전환">☀️</button>
+                    <button class="search-btn" onclick="closeDropdown();searchAndGo()">Search</button>
                 </div>
             </div>
+            <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="테마 전환">
+                <svg id="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                    <line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="12" y1="20" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="2" y1="12" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="20" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg id="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
 
             <!-- 경기 전적 배너 -->
             <div id="score-banner-container">
@@ -1145,14 +1221,18 @@
     function initTheme() {
         const saved = localStorage.getItem('mlb_theme') || 'dark';
         document.documentElement.dataset.theme = saved === 'light' ? 'light' : '';
-        document.getElementById('theme-toggle').textContent = saved === 'light' ? '🌙' : '☀️';
+        updateThemeIcon(saved === 'light');
     }
 
+    function updateThemeIcon(isLight) {
+        document.getElementById('theme-icon-dark').style.display  = isLight ? 'none' : '';
+        document.getElementById('theme-icon-light').style.display = isLight ? '' : 'none';
+    }
     function toggleTheme() {
         const isLight = document.documentElement.dataset.theme === 'light';
         const next = isLight ? 'dark' : 'light';
         document.documentElement.dataset.theme = next === 'light' ? 'light' : '';
-        document.getElementById('theme-toggle').textContent = next === 'light' ? '🌙' : '☀️';
+        updateThemeIcon(next === 'light');
         localStorage.setItem('mlb_theme', next);
     }
 
@@ -1749,8 +1829,12 @@
             <div class="skel" style="height:300px;"></div>`;
 
         try {
-            const res     = await fetch(`/api/player/${playerId}`);
-            const data    = await res.json();
+            const [res, awardsRes] = await Promise.all([
+                fetch(`/api/player/${playerId}`),
+                fetch(`/api/player/${playerId}/awards`),
+            ]);
+            const data       = await res.json();
+            const awardsData = await awardsRes.json();
             const player  = data.info;
             const isPitcher = data.is_pitcher;
             const isTwoway  = data.is_twoway;
@@ -1778,6 +1862,18 @@
             const safeFn = (player.fullName || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
             const starred = isFav(playerId);
 
+            const awardsList = (awardsData.awards || []).slice(0, 7);
+            const awardsHtml = `
+                <div class="profile-awards">
+                    <div class="profile-awards-title">수상 경력</div>
+                    ${awardsList.length ? awardsList.map(a => `
+                        <div class="profile-award-item">
+                            <span class="award-name">${a.name}</span>
+                            <span class="award-years">${a.count > 1 ? `${a.years} · ${a.count}회` : a.years}</span>
+                        </div>`).join('') :
+                    `<div style="padding:16px 0; text-align:center; color:var(--text-3); font-size:0.8rem;">수상 기록 없음</div>`}
+                </div>`;
+
             display.innerHTML = `
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
                     <button class="back-btn" onclick="goBack()">← 로스터</button>
@@ -1786,26 +1882,29 @@
                 </div>
 
                 <div class="profile-hero">
-                    <img src="${data.imageUrl}" class="profile-img" alt="${player.fullName}">
-                    <div style="flex:1; min-width:0;">
-                        <div class="profile-name">${data.korean_name || player.fullName}</div>
-                        <div style="font-size:0.82rem; color:var(--text-3); margin-bottom:4px;">${player.fullName}</div>
-                        <div class="profile-pos">${player.primaryPosition.name} &nbsp;·&nbsp; #${player.primaryNumber || '-'}</div>
-                        <div class="profile-meta">
-                            <div>
-                                <span class="pmeta-label">생년월일</span>
-                                <span class="pmeta-val">${player.birthDate || '-'}</span>
-                            </div>
-                            <div>
-                                <span class="pmeta-label">출신지</span>
-                                <span class="pmeta-val">${player.birthCity || '-'}</span>
-                            </div>
-                            <div>
-                                <span class="pmeta-label">신장 / 체중</span>
-                                <span class="pmeta-val">${fmtHeight(player.height)} / ${fmtWeight(player.weight)}</span>
+                    <div class="profile-left">
+                        <img src="${data.imageUrl}" class="profile-img" alt="${player.fullName}">
+                        <div style="min-width:0;">
+                            <div class="profile-name">${data.korean_name || player.fullName}</div>
+                            <div style="font-size:0.82rem; color:var(--text-3); margin-bottom:4px;">${player.fullName}</div>
+                            <div class="profile-pos">${player.primaryPosition.name} &nbsp;·&nbsp; #${player.primaryNumber || '-'}</div>
+                            <div class="profile-meta">
+                                <div>
+                                    <span class="pmeta-label">생년월일</span>
+                                    <span class="pmeta-val">${player.birthDate || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="pmeta-label">출신지</span>
+                                    <span class="pmeta-val">${player.birthCity || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="pmeta-label">신장 / 체중</span>
+                                    <span class="pmeta-val">${fmtHeight(player.height)} / ${fmtWeight(player.weight)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    ${awardsHtml}
                 </div>
 
                 <div class="stat-tabs">
@@ -1839,24 +1938,85 @@
         const pane = document.getElementById(`tab-pane-${tab}`);
 
         if (tab === 'career') {
-            pane.innerHTML = `<div style="padding:20px; text-align:center;"><div class="spinner-border spinner-border-sm text-warning"></div></div>`;
+            pane.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-3); font-size:0.85rem;">불러오는 중...</div>`;
             try {
-                const r    = await fetch(`/api/player/${playerId}/career`);
-                const data = await r.json();
+                const [careerRes, yearlyRes] = await Promise.all([
+                    fetch(`/api/player/${playerId}/career`),
+                    fetch(`/api/player/${playerId}/yearly`)
+                ]);
+                const career = await careerRes.json();
+                const yearly = await yearlyRes.json();
+
                 const mkRows = (list) => list.map(item => `
                     <div class="stat-row">
                         <span class="stat-label">${item.Info}</span>
                         <span class="stat-val">${item.Record}</span>
                     </div>`).join('');
-                pane.innerHTML = data.is_twoway ? `
+
+                const statsHtml = career.is_twoway ? `
                     <div class="twoway-grid">
                         <div class="twoway-col">
-                            <div class="twoway-col-head bat-head">⚾ Batting</div>${mkRows(data.hitting_stats)}
+                            <div class="twoway-col-head bat-head">Batting</div>${mkRows(career.hitting_stats)}
                         </div>
                         <div class="twoway-col">
-                            <div class="twoway-col-head pit-head">🎯 Pitching</div>${mkRows(data.pitching_stats)}
+                            <div class="twoway-col-head pit-head">Pitching</div>${mkRows(career.pitching_stats)}
                         </div>
-                    </div>` : mkRows(data.stats);
+                    </div>` : mkRows(career.stats);
+
+                // 연도별 차트
+                let chartHtml = '';
+                if (yearly.data?.length > 1) {
+                    chartHtml = `
+                        <div style="padding: 0 16px 8px; color:var(--text-3); font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-top:18px;">연도별 추이</div>
+                        <div class="chart-container"><canvas id="yearly-chart-canvas"></canvas></div>`;
+                }
+
+                pane.innerHTML = statsHtml + chartHtml;
+
+                if (yearly.data?.length > 1) {
+                    const ctx      = document.getElementById('yearly-chart-canvas').getContext('2d');
+                    const isLight  = document.documentElement.dataset.theme === 'light';
+                    const gridClr  = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+                    const tickClr  = isLight ? '#57606a' : '#8b949e';
+                    const labels   = yearly.data.map(d => d.season);
+
+                    const datasets = yearly.is_pitcher ? [
+                        { label: 'ERA',    data: yearly.data.map(d => parseFloat(d.era) || 0),       borderColor: '#f85149', backgroundColor: 'rgba(248,81,73,0.1)',  tension: 0.3, pointRadius: 7, pointHoverRadius: 9 },
+                        { label: 'WHIP',   data: yearly.data.map(d => parseFloat(d.whip) || 0),      borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', tension: 0.3, pointRadius: 7, pointHoverRadius: 9, yAxisID: 'y1' },
+                        { label: '탈삼진', data: yearly.data.map(d => d.strikeOuts),                 borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',  tension: 0.3, pointRadius: 7, pointHoverRadius: 9, yAxisID: 'y2' },
+                    ] : [
+                        { label: '타율',   data: yearly.data.map(d => parseFloat(d.avg) || 0),       borderColor: '#f5c518', backgroundColor: 'rgba(245,197,24,0.1)', tension: 0.3, pointRadius: 7, pointHoverRadius: 9 },
+                        { label: 'OPS',    data: yearly.data.map(d => parseFloat(d.ops) || 0),       borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', tension: 0.3, pointRadius: 7, pointHoverRadius: 9, yAxisID: 'y1' },
+                        { label: '홈런',   data: yearly.data.map(d => d.homeRuns),                   borderColor: '#f85149', backgroundColor: 'rgba(248,81,73,0.1)',  tension: 0.3, pointRadius: 7, pointHoverRadius: 9, yAxisID: 'y2' },
+                    ];
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: { labels, datasets },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            devicePixelRatio: window.devicePixelRatio,
+                            animation: false,
+                            scales: {
+                                x:  { ticks: { color: tickClr, font: { size: 20 } }, grid: { color: gridClr } },
+                                y:  { ticks: { color: tickClr }, grid: { color: gridClr }, beginAtZero: true },
+                                y1: { position: 'right', ticks: { color: tickClr }, grid: { drawOnChartArea: false }, beginAtZero: true },
+                                y2: { display: false, beginAtZero: true },
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: tickClr, font: { size: 14 }, usePointStyle: true, pointStyleWidth: 14 },
+                                    onClick(e, item, legend) {
+                                        const ci = legend.chart;
+                                        const meta = ci.getDatasetMeta(item.datasetIndex);
+                                        meta.hidden = meta.hidden === null ? !ci.data.datasets[item.datasetIndex].hidden : null;
+                                        ci.update();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
                 tabLoaded[key] = true;
             } catch(e) {
                 pane.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
@@ -1913,20 +2073,22 @@
                                 borderColor: '#f85149',
                                 backgroundColor: 'rgba(248,81,73,0.1)',
                                 tension: 0.3,
-                                pointRadius: 4,
+                                pointRadius: 7,
+                                pointHoverRadius: 9,
                                 yAxisID: 'y1',
                             }]
                         },
                         options: {
                             responsive: true, maintainAspectRatio: false,
                             scales: {
-                                x: { ticks: { color: tickClr, font: { size: 10 } }, grid: { color: gridClr } },
+                                x: { ticks: { color: tickClr, font: { size: 20 } }, grid: { color: gridClr } },
                                 y: { ticks: { color: tickClr }, grid: { color: gridClr }, beginAtZero: true,
                                      title: { display: true, text: 'K', color: '#388bfd', font: { size: 10 } } },
                                 y1: { position: 'right', ticks: { color: '#f85149' }, grid: { drawOnChartArea: false },
                                       beginAtZero: true, title: { display: true, text: 'ERA', color: '#f85149', font: { size: 10 } } },
                             },
-                            plugins: { legend: { labels: { color: tickClr, font: { size: 11 } } } }
+                            animation: false,
+                            plugins: { legend: { labels: { color: tickClr, font: { size: 14 }, usePointStyle: true, pointStyleWidth: 14 }, onClick(e, item, legend) { const ci = legend.chart; const meta = ci.getDatasetMeta(item.datasetIndex); meta.hidden = meta.hidden === null ? !ci.data.datasets[item.datasetIndex].hidden : null; ci.update(); } } }
                         }
                     };
                 } else {
@@ -1957,10 +2119,11 @@
                         options: {
                             responsive: true, maintainAspectRatio: false,
                             scales: {
-                                x: { ticks: { color: tickClr, font: { size: 10 } }, grid: { color: gridClr } },
+                                x: { ticks: { color: tickClr, font: { size: 20 } }, grid: { color: gridClr } },
                                 y: { ticks: { color: tickClr }, grid: { color: gridClr }, beginAtZero: true },
                             },
-                            plugins: { legend: { labels: { color: tickClr, font: { size: 11 } } } }
+                            animation: false,
+                            plugins: { legend: { labels: { color: tickClr, font: { size: 14 }, usePointStyle: true, pointStyleWidth: 14 }, onClick(e, item, legend) { const ci = legend.chart; const meta = ci.getDatasetMeta(item.datasetIndex); meta.hidden = meta.hidden === null ? !ci.data.datasets[item.datasetIndex].hidden : null; ci.update(); } } }
                         }
                     };
                 }
@@ -1971,6 +2134,7 @@
             } catch(e) {
                 pane.innerHTML = `<div style="padding:16px; color:var(--red);">불러오기 실패</div>`;
             }
+
         }
     }
 

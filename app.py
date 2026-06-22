@@ -16,6 +16,8 @@ from crawler import (
     get_schedule,
     get_stat_leaders,
     get_team_stats,
+    get_player_yearly_stats,
+    get_player_awards,
 )
 
 app = Flask(__name__)
@@ -139,6 +141,70 @@ def api_player_career(player_id):
             "stats":     _hitting_stats(get_player_career_stats(player_id, "hitting")),
             "is_twoway": False,
         })
+
+_MAJOR_AWARD_IDS = {
+    'ALMVP','NLMVP','WSMVP','WBCMVP','WBCMVPB',
+    'ALCY','NLCY',
+    'ALGG','NLGG',
+    'ALSS','NLSS',
+    'ALROY','NLROY',
+    'ALAS','NLAS',
+    'WSCHAMP',
+    'ALCSMVP','NLCSMVP',
+    'ALHAA','NLHAA',
+    'MLBAFIRST','MLBSECOND',
+    'MLBPCPOY','MLBPCALOP','MLBPCNLOP',
+    'BAMLPOY','BAMLMLROY',
+    'APATHLETE',
+    'DHOY',
+}
+
+@app.route("/api/player/<int:player_id>/awards")
+def api_player_awards(player_id):
+    try:
+        awards = get_player_awards(player_id)
+        grouped = {}
+        for a in awards:
+            aid = a.get("id", "")
+            if aid not in _MAJOR_AWARD_IDS:
+                continue
+            if aid not in grouped:
+                grouped[aid] = {"name": a.get("name", ""), "seasons": []}
+            season = a.get("season", "")
+            if season and season not in grouped[aid]["seasons"]:
+                grouped[aid]["seasons"].append(season)
+        result = []
+        for aid, info in grouped.items():
+            info["seasons"].sort()
+            result.append({
+                "id":    aid,
+                "name":  info["name"],
+                "count": len(info["seasons"]),
+                "years": ", ".join(info["seasons"]),
+            })
+        result.sort(key=lambda x: x["count"], reverse=True)
+        return jsonify({"awards": result})
+    except Exception as e:
+        return jsonify({"awards": [], "error": str(e)})
+
+@app.route("/api/player/<int:player_id>/yearly")
+def api_player_yearly(player_id):
+    info          = get_player_info(player_id)
+    position_type = info.get("primaryPosition", {}).get("type", "")
+    is_pitcher    = (position_type == "Pitcher")
+    group         = "pitching" if is_pitcher else "hitting"
+    splits        = get_player_yearly_stats(player_id, group)
+    result = []
+    for s in splits:
+        stat   = s.get("stat", {})
+        season = s.get("season", "")
+        if not season:
+            continue
+        if is_pitcher:
+            result.append({"season": season, "era": stat.get("era", "-"), "strikeOuts": stat.get("strikeOuts", 0), "wins": stat.get("wins", 0), "whip": stat.get("whip", "-")})
+        else:
+            result.append({"season": season, "avg": stat.get("avg", ".000"), "homeRuns": stat.get("homeRuns", 0), "rbi": stat.get("rbi", 0), "ops": stat.get("ops", ".000")})
+    return jsonify({"data": result, "is_pitcher": is_pitcher})
 
 @app.route("/api/player/<int:player_id>/gamelog")
 def api_player_gamelog(player_id):

@@ -129,6 +129,23 @@ def get_player_career_stats(player_id: int, group: str = "hitting") -> dict:
 
 # API 예) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=career&group=hitting
 
+# 선수 수상 경력
+def get_player_awards(player_id: int) -> list:
+    url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/awards"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json().get("awards", [])
+
+# 선수 연도별 스탯
+def get_player_yearly_stats(player_id: int, group: str = "hitting") -> list:
+    url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
+    params = {"stats": "yearByYear", "group": group}
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    stats = response.json().get("stats", [])
+    if not stats or not stats[0].get("splits"): return []
+    return stats[0].get("splits", [])
+
 # 선수 경기 기록 (게임 로그 - 경기별 스탯)
 def get_player_game_log(player_id: int, season: int = 2026, group: str = "hitting") -> list:
     url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"

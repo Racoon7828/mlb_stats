@@ -2,18 +2,18 @@ import requests
 from deep_translator import GoogleTranslator
 from concurrent.futures import ThreadPoolExecutor
 
-# 번역 결과 메모리 캐시 (앱 실행 중 유지)
+# 번역 결과 메모리 캐시 저장용
 _name_cache: dict = {}
 
 def get_korean_name(name: str) -> str:
-    """영문 선수 이름 → 한글 변환 (캐시 적용)"""
+    # 영어 이름 > 한글로
     if not name: return name
     if name in _name_cache: return _name_cache[name]
     try:
         result = GoogleTranslator(source='en', target='ko').translate(name)
         _name_cache[name] = result
     except Exception:
-        _name_cache[name] = name  # 실패 시 원본 저장
+        _name_cache[name] = name  # 실패하면 원본을 저장함
     return _name_cache[name]
 
 def translate_ko_to_en(name: str) -> str:
@@ -33,16 +33,17 @@ def get_korean_names_batch(names: list) -> dict:
             list(executor.map(get_korean_name, uncached))  # 캐시에 저장됨
 
     return {n: _name_cache.get(n, n) for n in names}
-# main_url = "https://statsapi.mlb.com/api/v1"
+
+# main_url = "https://statsapi.mlb.com/api/v1" # 써놓고 안썻노
 
 # 팀 정보
 # 믈브 전체 팀의 id와 이름 가져오기
 def get_all_teams(season: int = 2026) -> list:
     url = "https://statsapi.mlb.com/api/v1/teams" # 팀 url
-    params = {"sportId":1,"season": season}       # url 파라미터
+    params = {"sportId":1,"season": season}
     response = requests.get(url, params=params)   # url + 파라미터로 api 요청
-    response.raise_for_status()                   # 오류 검사 함수 (200 OK가 아닐 경우 예외 발생)
-    return response.json().get("teams",[])        # json 데이터로 리스트 받아오기
+    response.raise_for_status()                   # 오류 검사용 (200 아니면 터짐)
+    return response.json().get("teams",[])        # json 데이터로 팀 리스트 받기
     
 # 데이터 받아오는지 확인용
 # for team in get_all_teams():
@@ -57,6 +58,7 @@ def get_team_roster(team_id: int, season: int = 2026) -> list:
     response.raise_for_status()
     return response.json().get("roster",[])
 
+# 다저스 = 119
 # for team in get_team_roster(119):
 #     print(f"person: {team['person']['fullName']}")
 
@@ -70,7 +72,8 @@ def get_player_info(player_id: int) -> dict:
     players = data.get("people", [])
     if players: return players[0]
     return {}
-    
+
+# 오오타니    
 # player_info = get_player_info(660271)
 # current_team = player_info.get("currentTeam")
 # print(f"현재 팀 정보: {current_team}")
@@ -93,12 +96,13 @@ def get_player_stats(player_id: int, season: int = 2026, group: str = "hitting")
 # 선수정보 양식 : https://statsapi.mlb.com/api/v1/people/660271/stats?stats=season&group=hitting&season=2026
 #                                                      선수id /        시즌 스탯  & 타격 정보     & 2026년 시즌 
 
+# 오타니꺼
 # stats_data = get_player_stats(660271)
 # print(f"홈런: {stats_data.get('homeRuns', 0)}")
 # print(f"안타: {stats_data.get('hits', 0)}")
 # print(f"타점: {stats_data.get('rbi', 0)}")
 
-# 선수 검색 (선수 이름 입력)
+# 선수 검색
 def search_players(name: str) -> list:
     url = "https://statsapi.mlb.com/api/v1/people/search"
     params = {"names": name, "sportId": 1}
@@ -107,27 +111,42 @@ def search_players(name: str) -> list:
     data = response.json()
     return data.get("people", [])
 
-# API 예) = https://statsapi.mlb.com/api/v1/people/search?names=Paul%20Goldschmid
+# 검색 양식 = https://statsapi.mlb.com/api/v1/people/search?names=Paul%20Goldschmid
 
-# 팀 순위 leagueId = 103(아메리칸) 104(내셔널) / divisionId = 서부/중부/동부 200/202/201 (아메리칸) | 서부/중부/동부 204/205/203 (내셔널)
+# 검색 되나 확인
+# result = search_players("Ohtani")
+# print(result[0]['fullName'], result[0]['id'])
+
+# 팀 순위 
+# leagueId = 103(아메리칸) 104(내셔널) 
+# divisionId = 서부/중부/동부 200/202/201 (아메리칸) | 서부/중부/동부 204/205/203 (내셔널)
 def get_division_standings(league_id: int):
     url = "https://statsapi.mlb.com/api/v1/standings"
     params = {"leagueId": league_id, "season": 2026, "hydrate": "team"}
     response = requests.get(url, params=params)
     response.raise_for_status()
-    return response.json().get("records", []) # 지구별 리스트 그대로 반환
+    return response.json().get("records", []) # 지구별 리스트 받아옴
 
-# 선수 통산 스탯 (커리어 전체 누적 기록)
+# AL 순위 확인
+# records = get_division_standings(103)
+# print(records[0]['teamRecords'][0]['team']['name'])
+
+# 그래프 그릴 선수 통산 스탯
 def get_player_career_stats(player_id: int, group: str = "hitting") -> dict:
     url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
-    params = {"stats": "career", "group": group} # stats=career : 통산 누적 스탯
+    params = {"stats": "career", "group": group} # stats=career = 통산 누적 스탯
     response = requests.get(url, params=params)
     response.raise_for_status()
     stats = response.json().get("stats", [])
-    if not stats or not stats[0].get("splits"): return {} # 데이터 없을 경우 에러 방지
+    if not stats or not stats[0].get("splits"): return {}
     return stats[0].get("splits")[0].get("stat", {})
 
-# API 예) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=career&group=hitting
+# 양식 = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=career&group=hitting
+
+# 오타니 통산
+# career = get_player_career_stats(660271)
+# print(f"통산 홈런: {career.get('homeRuns', 0)}")
+# print(f"통산 타율: {career.get('avg', '-')}")
 
 # 선수 수상 경력
 def get_player_awards(player_id: int) -> list:
@@ -136,7 +155,12 @@ def get_player_awards(player_id: int) -> list:
     response.raise_for_status()
     return response.json().get("awards", [])
 
-# 선수 연도별 스탯
+# 오타니 상 받은거
+# awards = get_player_awards(660271)
+# for a in awards[:3]:
+#     print(a.get('name'), a.get('season'))
+
+# 선수 연도별 기록들
 def get_player_yearly_stats(player_id: int, group: str = "hitting") -> list:
     url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
     params = {"stats": "yearByYear", "group": group}
@@ -146,7 +170,12 @@ def get_player_yearly_stats(player_id: int, group: str = "hitting") -> list:
     if not stats or not stats[0].get("splits"): return []
     return stats[0].get("splits", [])
 
-# 선수 경기 기록 (게임 로그 - 경기별 스탯)
+# 연도별 홈런 확인
+# yearly = get_player_yearly_stats(660271)
+# for s in yearly[-3:]:
+#     print(s['season'], s['stat'].get('homeRuns'))
+
+# 선수뱔 경기 기록
 def get_player_game_log(player_id: int, season: int = 2026, group: str = "hitting") -> list:
     url = f"https://statsapi.mlb.com/api/v1/people/{player_id}/stats"
     params = {"stats": "gameLog", "group": group, "season": season} # stats=gameLog : 경기별 스탯 목록
@@ -156,9 +185,13 @@ def get_player_game_log(player_id: int, season: int = 2026, group: str = "hittin
     if not stats or not stats[0].get("splits"): return [] # 데이터 없을 경우 에러 방지
     return stats[0].get("splits", []) # 경기별 스탯 리스트 반환
 
-# API 예) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=gameLog&group=hitting&season=2026
+# 양식) = https://statsapi.mlb.com/api/v1/people/660271/stats?stats=gameLog&group=hitting&season=2026
 
-# 경기 일정 및 결과 (특정 날짜)
+# 최근 경기 뜨나
+# log = get_player_game_log(660271, 2026)
+# print(log[-1]['date'], log[-1]['stat'].get('homeRuns'))
+
+# 경기 일정 및 결과
 def get_schedule(date: str) -> list:
     url = "https://statsapi.mlb.com/api/v1/schedule"
     params = {"sportId": 1, "date": date, "hydrate": "team,linescore"}
@@ -169,7 +202,13 @@ def get_schedule(date: str) -> list:
         return []
     return dates[0].get("games", [])
 
-# 리그 스탯 상위 선수 목록 (leaderCategories 예: homeRuns, battingAverage, strikeouts, earnedRunAverage)
+# 오늘 경기 뜨나
+# games = get_schedule("2026-06-01")
+# for g in games:
+#     print(g['teams']['away']['team']['name'], 'vs', g['teams']['home']['team']['name'])
+
+# 리그 스탯 상위 선수 목록 
+# leaderCategories = homeRuns, battingAverage, strikeouts, earnedRunAverage 등등 받아옴
 def get_stat_leaders(stat_category: str, group: str = "hitting", season: int = 2026, limit: int = 15) -> list:
     url = "https://statsapi.mlb.com/api/v1/stats/leaders"
     params = {
@@ -187,7 +226,12 @@ def get_stat_leaders(stat_category: str, group: str = "hitting", season: int = 2
         return []
     return leaders[0].get("leaders", [])
 
-# 팀 시즌 스탯 (타격 또는 투구)
+# 홈런 순위 확인
+# leaders = get_stat_leaders("homeRuns")
+# for l in leaders[:5]:
+#     print(l['rank'], l['person']['fullName'], l['value'])
+
+# 팀 시즌 스탯 (타격 / 투구)
 def get_team_stats(team_id: int, season: int = 2026, group: str = "hitting") -> dict:
     url = f"https://statsapi.mlb.com/api/v1/teams/{team_id}/stats"
     params = {"stats": "season", "group": group, "season": season}
@@ -197,3 +241,8 @@ def get_team_stats(team_id: int, season: int = 2026, group: str = "hitting") -> 
     if not stats or not stats[0].get("splits"):
         return {}
     return stats[0]["splits"][0].get("stat", {})
+
+# 다저스 팀 스탯
+# stats = get_team_stats(119)
+# print(f"팀 타율: {stats.get('avg')}")
+# print(f"팀 홈런: {stats.get('homeRuns')}")

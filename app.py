@@ -18,11 +18,11 @@ from crawler import (
     get_team_stats,
     get_player_yearly_stats,
     get_player_awards,
-)
+) # 졸라많네
 
 app = Flask(__name__)
 
-# ── 스탯 빌더 헬퍼 ─────────────────────────────────────────────────
+# 타격
 def _hitting_stats(s):
     return [
         {"Info": "경기 수", "Record": str(s.get("gamesPlayed", 0))},
@@ -38,6 +38,7 @@ def _hitting_stats(s):
         {"Info": "OBP",     "Record": s.get("obp", ".000")},
     ]
 
+# 투구
 def _pitching_stats(s):
     return [
         {"Info": "경기 수", "Record": str(s.get("gamesPlayed", 0))},
@@ -51,6 +52,7 @@ def _pitching_stats(s):
         {"Info": "피홈런",  "Record": s.get("homeRuns", 0)},
         {"Info": "세이브",  "Record": s.get("saves", 0)},
     ]
+# 추가 할만한거... 
 
 # ── 라우트 ─────────────────────────────────────────────────────────
 @app.route("/")
@@ -90,6 +92,7 @@ def api_player_detail(player_id):
     is_twp        = (position_type == "Two-Way Player")
     player_img    = f"https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/{player_id}/headshot/67/current"
 
+    # 아오 오타니
     if is_twp:
         hitting_stats  = _hitting_stats(get_player_stats(player_id, 2026, "hitting"))
         pitching_stats = _pitching_stats(get_player_stats(player_id, 2026, "pitching"))
@@ -144,19 +147,16 @@ def api_player_career(player_id):
 
 _MAJOR_AWARD_IDS = {
     'ALMVP','NLMVP','WSMVP','WBCMVP','WBCMVPB',
-    'ALCY','NLCY',
-    'ALGG','NLGG',
-    'ALSS','NLSS',
-    'ALROY','NLROY',
-    'ALAS','NLAS',
-    'WSCHAMP',
-    'ALCSMVP','NLCSMVP',
-    'ALHAA','NLHAA',
-    'MLBAFIRST','MLBSECOND',
-    'MLBPCPOY','MLBPCALOP','MLBPCNLOP',
-    'BAMLPOY','BAMLMLROY',
-    'APATHLETE',
-    'DHOY',
+    'ALCY','NLCY', # 싸이영
+    'ALGG','NLGG', # 골글
+    'ALSS','NLSS', # 도루
+    'ALROY','NLROY', # 신인
+    'ALAS','NLAS', # 올스타
+    'WSCHAMP', # 월시우승
+    'ALCSMVP','NLCSMVP', # 아메/내셔널 챔피언십 mvp
+    'ALHAA','NLHAA', # 행크애런상
+    'MLBPCPOY','MLBPCALOP','MLBPCNLOP', # 올해의 선수
+    'DHOY', # 지명타자
 }
 
 @app.route("/api/player/<int:player_id>/awards")
@@ -269,12 +269,12 @@ def api_divisions():
     nl_records = get_division_standings(104)
     return jsonify(al_records + nl_records)
 
-# ── 경기 일정/결과 ──────────────────────────────────────────────────
+# 상단 경기 일정/결과 
 @app.route("/api/schedule")
 def api_schedule():
-    d = request.args.get('date', str(_date.today()))
+    date = request.args.get('date', str(_date.today()))
     try:
-        games = get_schedule(d)
+        games = get_schedule(date)
     except Exception:
         return jsonify([])
 
@@ -341,7 +341,7 @@ def api_compare():
     try:
         t1 = int(request.args.get('team1', 0))
         t2 = int(request.args.get('team2', 0))
-        if not t1 or not t2:
+        if not t1 or not t2: # 
             return jsonify({"error": "team1, team2 필요"}), 400
         return jsonify({
             "team1": {"id": t1, "hitting": get_team_stats(t1, 2026, "hitting"), "pitching": get_team_stats(t1, 2026, "pitching")},
@@ -350,4 +350,7 @@ def api_compare():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == "__main__": app.run(debug=True, host="0.0.0.0", port=5001)
+if __name__ == "__main__":
+    import os
+    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug, host="0.0.0.0", port=5001)

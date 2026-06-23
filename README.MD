@@ -2,6 +2,8 @@
 
 > MLB 실시간 통계 조회 웹 애플리케이션
 
+**[라이브 데모 보기](https://mlb-stats-tgej.onrender.com)**
+
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat&logo=flask&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=flat&logo=javascript&logoColor=black)

@@ -13,6 +13,7 @@
 ### 팀 & 순위
 - 2026 시즌 MLB 30개 팀 AL/NL 사이드바 목록
 - 지구별 순위표 (승/패/승률/게임차 표시)
+
 ![메인 화면](screenshots/main.jpg)
 
 ### 선수 정보
@@ -22,6 +23,7 @@
 - 신장/체중 한국 단위 자동 변환 (피트→cm, 파운드→kg)
 - 포지션별 배지 색상 구분 (투수/포수/내야수/외야수/지명타자)
 - 이름 한글 자동 번역 (`deep-translator`)
+
 ![팀 로스터](screenshots/roster.jpg)
 
 ### 스탯 조회
@@ -32,6 +34,7 @@
 - 최근 10경기 기록 테이블 + Chart.js 시각화
   - 타자: 안타·홈런·타점 바 차트
   - 투수: 탈삼진 바 + ERA 라인 차트
+
 ![팀 로스터](screenshots/stats.jpg)
 
 ### 리더보드
@@ -71,6 +74,28 @@
 ---
 
 ## 설치 및 실행
+
+### Docker (권장)
+
+Docker Desktop이 설치되어 있다면 한 줄로 실행됩니다.
+
+```bash
+docker-compose up --build
+```
+
+브라우저에서 접속:
+```
+http://localhost:5001
+```
+
+종료:
+```bash
+docker-compose down
+```
+
+---
+
+### 로컬 실행 (Python 환경)
 
 ```bash
 # 패키지 설치

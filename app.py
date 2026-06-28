@@ -254,6 +254,11 @@ def api_search():
     try:
         search_name = translate_ko_to_en(name) if _is_korean(name) else name
         results = search_players(search_name)
+        # 번역 결과로 못 찾으면 성(last word)만으로 재시도 (Otani → Otani 단독)
+        if not results and _is_korean(name):
+            last_word = search_name.split()[-1] if search_name else search_name
+            if last_word != search_name:
+                results = search_players(last_word)
         if results:
             korean_map = get_korean_names_batch([p.get('fullName', '') for p in results])
             for p in results:
